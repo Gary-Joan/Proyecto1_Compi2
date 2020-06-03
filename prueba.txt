@@ -1,1 +1,5 @@
 main:
+$t4=4;
+$a0 = 6+$t4;
+print($a0);
+print($t4);
