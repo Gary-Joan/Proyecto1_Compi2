@@ -1,5 +1,10 @@
 main:
-$t4=4;
-$a0 = 6+$t4;
-print($a0);
-print($t4);
+$t1 = 'hola';
+$t2 = 'mundo';
+
+
+$t3 = 1 + 2;
+
+
+print($t3);
+

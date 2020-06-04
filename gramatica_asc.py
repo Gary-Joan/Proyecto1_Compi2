@@ -8,17 +8,17 @@ from lista_instrucciones import *
 from expresiones import *
 
 palabrasreservadas = {
-    'main'  : 'MAIN',
+    'main' : 'MAIN',
     'print' : 'IMPRIMIR',
     'unset' : 'UNSET',
     'goto'  : 'GOTO',
-    'abs'   : 'ABS',
+    'abs'   : 'ABSOLUTO',
     'if'    : 'IF',
     'read'  : 'READ',
     'exit'  : 'EXIT',
     'int'   : 'INT',
     'float' : 'FLOAT',
-    'char'  : 'CHAR'
+    'char'  : 'CHAR',
 }
 
 tokens = [
@@ -71,7 +71,7 @@ t_IGUALQUE      = r'=='
 t_NIGUALQUE     = r'!='
 t_RESIDUO       = r'%'
 t_NOT           = r'!'
-t_AND           = r'&&'
+t_AND           = r'\&\&'
 t_OR            = r'\|\|'
 t_XOR           = r'xor'
 t_SHIFTDER      = r'>>'
@@ -125,7 +125,7 @@ t_ignore = " \t"
 
 def t_newline(t):
     r'\n+'
-    t.lexer.lineno += t.value.count("\n")
+    t.lexer.lineno += len(t.value)
 
 
 def t_error(t):
@@ -151,7 +151,7 @@ def p_init(t) :
     'inicio            : instruccion'
     print("Todo correcto!")
     t[0] = t[1]
-    #print(t[0])
+   # print(t[0])
 def p_instruccion(t) :
     '''instruccion      : MAIN DOSPUNTOS listainstrucciones '''
     t[0]=t[3]
@@ -167,124 +167,154 @@ def p_lista_listainstrucciones(t):
 def p_lista(t):
     '''lista : inst_asignacion
                 | inst_imprimir
-                | inst_unset
+                | inst_if
                 | inst_goto
                 | etiqueta
-                | salida
-                | inst_if_control'''
+                | inst_unset
+                | inst_exit
+                | error
+                '''
     t[0]=t[1]
 
 def p_inst_asignacion(t):
     '''inst_asignacion : VAR IGUAL expresion PUNTOCOMA
                           '''
-    #t[0] = ('asignacion',t[1],t[3])
-    t[0] =Asignacion(t[1], t[3])
-def p_expresion_asignacion_numerica(t):
+    # print(t[3])
+    t[0] = Asignacion(t[1], t[3])
+def p_inst_asignacion_numerica(t):
     'expresion : expresion_num'
-
+    t[0] = t[1] 
+def p_inst_asignacion_relacional(t):
+    'expresion : expresion_relacional'
+    t[0] =  t[1]
+def p_inst_asignacion_conversion(t):
+    'expresion : conversion'
+    t[0] = t[1]
 def p_inst_asignacion_read(t):
-    'inst_asignacion  : VAR IGUAL READ PARIZQ PARDER PUNTOCOMA'
-
-def p_inst_asignacion_cast(t):
-    '''inst_asignacion : VAR IGUAL PARIZQ INT PARDER expresion_num PUNTOCOMA
-                        | VAR IGUAL PARIZQ FLOAT PARDER expresion_num PUNTOCOMA
-                        | VAR IGUAL PARIZQ CHAR PARDER expresion_num PUNTOCOMA'''
- 
+    'expresion : leer_valor'
+    t[0] = t[1]
 def p_expresion_numerica_binaria(t):
-    '''expresion_num : expresion_num SUMA expresion_num
+    '''expresion_num :     expresion_num SUMA expresion_num
                          | expresion_num RESTA expresion_num
                          | expresion_num MULTI expresion_num
-                         | expresion_num DIV expresion_num'''
+                         | expresion_num DIV expresion_num
+                         | expresion_num RESIDUO expresion_num'''
 
     if   t[2] == '+':     t[0] = ExpresionBi(t[1], t[3], OPERACION_ARITMETICA.SUMA)
     elif t[2] == '-':     t[0] = ExpresionBi(t[1], t[3], OPERACION_ARITMETICA.RESTA)
     elif t[2] == '*':     t[0] = ExpresionBi(t[1], t[3], OPERACION_ARITMETICA.MULTI)
     elif t[2] == '/':     t[0] = ExpresionBi(t[1], t[3], OPERACION_ARITMETICA.DIV)
+    elif t[2] == '%':     t[0] = ExpresionBi(t[1], t[3], OPERACION_ARITMETICA.RESIDUO)
     
-    
-    
-
-
-def p_expresion_numerica_puntero(t):
-    'expresion_num : puntero'
-
-def p_expresion_numerica_logica_relacional(t):
-    'expresion_num : expresion_logica_relacional'
-
 def p_expresion_unaria(t):
     'expresion_num : RESTA expresion_num %prec UMENOS'
-    t[0] = ExpresionNegativo(t[2])
+    t[0] = ExpresionNegativo(t[2])   
 
-def p_expresion_logica_relacional(t):
-    '''expresion_logica_relacional : expresion_num MAYORQUE expresion_num
-                        | expresion_num MENORQUE expresion_num
-                        | expresion_num IGUALQUE expresion_num
-                        | expresion_num NIGUALQUE expresion_num
-                        | expresion_num MAYORIGUALQUE expresion_num
-                        | expresion_num MENORIGUALQUE expresion_num
-                        | NOT expresion_num
+def p_expresion_absoluto(t):
+    'expresion_num : ABSOLUTO PARIZQ expresion_num PARDER '
+    #print(t[3])
+    t[0] = ExpresionAbsoluto(t[3])
+def p_expresion_numerica_valor(t):
+    'expresion_num : valorp'   
+    t[0]=t[1]
+
+def p_valorp_numerico(t):
+    '''valorp : DECIMAL
+                | ENTERO
     '''
-
-def p_puntero(t):
-    'puntero : PUNTERO VAR'
-
-def p_expresion_numero(t):
-    '''expresion_num : DECIMAL
-                    | ENTERO'''
-
     t[0] = ExpresionNumero(t[1])
 
-def p_expresion_cadena(t):
-    'expresion_variable : CADENA'
+def p_valorp_cadena(t):
+    '''valorp : CADENA
+    '''
     t[0] = ExpresionCadenaComillas(t[1])
-def p_expresion_cadena_numerico(t):
-    'expresion_variable : expresion_num'
-def p_inst_imprimir(t):
-    'inst_imprimir       : IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA'
-    
-    t[0] = Imprimir(t[3])
+def p_valorp_variable(t):
+    'valorp : VAR'
+    t[0] = ExpresionID(t[1])
+
+def p_valor_identificador_label(t):
+    'valorp : ID'
+    t[0] = ExpresionLabel(t[1])
     
 
+def p_expresion_relacional(t):
+    '''expresion_relacional :        expresion_num MAYORQUE expresion_num
+                                   | expresion_num MENORQUE expresion_num
+                                   | expresion_num IGUALQUE expresion_num
+                                   | expresion_num NIGUALQUE expresion_num
+                                   | expresion_num MAYORIGUALQUE expresion_num
+                                   | expresion_num MENORIGUALQUE expresion_num
+                                   | expresion_num AND expresion_num
+                                   | expresion_num OR expresion_num
+                                   | expresion_num XOR expresion_num
+                                  
+    '''
+    if   t[2] == '>'  : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.MAYORQUE)
+    elif t[2] == '<'  : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.MENORQUE)
+    elif t[2] == '==' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.IGUAL)
+    elif t[2] == '!=' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.DIFERENTE)
+    elif t[2] == '>=' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.MAYOR_IGUAL_QUE)
+    elif t[2] == '<=' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.MENOR_IGUAL_QUE)
+    elif t[2] == '&&' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.AND)
+    elif t[2] == '||' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.OR)
+    elif t[2] == 'xor' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.XOR)
+
+def p_expresion_relacional_not(t):
+    'expresion_relacional : NOT expresion_num'
+    t[0] = ExpresionLogicaNot(t[2], OPERACION_LOGICA.NOT)
+
+def p_conversion(t):
+    '''conversion : PARIZQ valor_conversion PARDER expresion_num
+    '''
+    print(t[2],t[4])
+def p_valor_conversion(t):
+    '''valor_conversion : INT
+                        | FLOAT
+                        | CHAR
+    
+    '''
+def p_read_valor(t):
+    'leer_valor : READ PARIZQ PARDER' 
+    
+    
+def p_etiqueta(t):
+    'etiqueta : ID DOSPUNTOS'
+    t[0] = ExpresionLabel(t[1])
 
 def p_inst_unset(t):
-    'inst_unset         : UNSET PARIZQ expresion_num PARDER PUNTOCOMA'
-    t[0]=('unset',t[3])
+    'inst_unset : UNSET PARIZQ VAR PARDER PUNTOCOMA'
+
+
+def p_inst_exit(t):
+    'inst_exit : EXIT PUNTOCOMA'
+
+def p_inst_imprimir(t):
+    'inst_imprimir       : IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA'
+    t[0] = Imprimir(t[3])
+    
+def p_inst_if(t):
+    'inst_if : IF PARIZQ expresion PARDER GOTO ID PUNTOCOMA'
+    print(t[1],t[2],t[3],t[4],t[5],t[6], t[7])
 def p_inst_goto(t):
-    'inst_goto          : GOTO expresion_num PUNTOCOMA'
-    t[0]=('goto',t[2])
-
-def p_etiqueta(t):
-    '''etiqueta            : expresion_num DOSPUNTOS'''
-    t[0]=('label',t[1])
-
-def p_exit(t):
-    'salida : EXIT PUNTOCOMA'
-    t[0]=('salida',t[1])
-def p_inst_if_control(t):
-    '''inst_if_control : IF PARIZQ expresion_logica_relacional PARDER GOTO expresion_num PUNTOCOMA '''
+    'inst_goto : GOTO ID PUNTOCOMA'
+    print(t[1],t[2])
 
 #////////////////////////////////////////////////////////////////////////////////////
 
-def encontrar_columna(input, token):
-    line_start = input.rfind('\n', 0, token.lexpos) + 1
-    return  (token.lexpos - line_start) + 1
 
 
+
+#encontrar columna
 
 
 #ERRORES
 def p_error(p):
-    # Read ahead looking for a terminating ";"
-    while True:
-        tok = parser.token()  # Get the next token
-        if not tok or tok.type == 'PUNTOCOMA': break
-    parser.errok()
-    #print("Error sintáctico en '%s' columna '%d'" % (p, 0))
-
-    # Return SEMI to the parser as the next lookahead token
-    return tok
-
-
+     if p:
+          print("Error Sintactico en token", p)
+          # Just discard the token and tell the parser it's okay.
+          parser.errok()
+     else:
+          print("Syntax error at EOF")
 
 import ply.yacc as yacc
 parser = yacc.yacc()

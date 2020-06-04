@@ -5,6 +5,8 @@ class OPERACION_ARITMETICA(Enum) :
     RESTA = 2
     MULTI = 3
     DIV = 4
+    RESIDUO = 5
+    ABS = 6
 
 class OPERACION_LOGICA(Enum) :
     MAYORQUE = 1
@@ -15,6 +17,10 @@ class OPERACION_LOGICA(Enum) :
     MENOR_IGUAL_QUE = 6
     IGUAL_IGUAL = 7
     NIGUAL = 8
+    NOT = 9
+    AND = 10
+    OR = 11
+    XOR = 12
 
 class ExpresionNum:
 
@@ -36,13 +42,17 @@ class ExpresionNumero(ExpresionNum) :
     '''
         Esta clase representa una expresión numérica entera o decimal.
     '''
-
     def __init__(self, val = 0) :
         self.val = val
 
-class ExpresionIdentificador(ExpresionNum) :
+class ExpresionAbsoluto(ExpresionNum):
+    '''representa la clase de expresion numerica de tipo absoluto'''
+    def __init__(self, expAbs):
+        self.expAbs = expAbs
+
+class ExpresionLabel(ExpresionNum) :
     '''
-        Esta clase representa un identificador.
+        Esta clase representa una etiqueta.
     '''
 
     def __init__(self, id = "") :
@@ -52,7 +62,14 @@ class ExpresionCadena :
     '''
         Esta clase representa una Expresión de tipo cadena.
     '''
-class ExpresionDobleComilla(ExpresionCadena) :
+class ExpresionID(ExpresionCadena):
+    '''
+        Esta clase representa un identificador.
+    '''
+
+    def __init__(self, id = "") :
+        self.id = id
+class ExpresionCadenaComillas(ExpresionCadena) :
     '''
         Esta clase representa una cadena entre comillas doble.
         Recibe como parámetro el valor del token procesado por el analizador léxico
@@ -76,8 +93,23 @@ class ExpresionLogica() :
         Esta clase representa la expresión lógica.
         Esta clase recibe los operandos y el operador
     '''
+class ExpresionLogicaBinaria(ExpresionLogica):
 
     def __init__(self, exp1, exp2, operador) :
         self.exp1 = exp1
         self.exp2 = exp2
         self.operador = operador
+class ExpresionLogicaNot(ExpresionLogica):
+
+    def __init__(self,expNot,notoperador):
+        self.expNot = expNot
+        self.notoperador = notoperador
+
+class ExpresionRead():
+    '''
+        esta clase abastracta es para la funcion read()
+    '''
+class Expresionleer(ExpresionRead):
+
+    def __init__(self):
+        super().__init__()
