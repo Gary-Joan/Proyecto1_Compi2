@@ -6,6 +6,40 @@
 # -----------------------------------------------------------------------------
 from lista_instrucciones import *
 from expresiones import *
+from NodoArbol import NodoArbol 
+import constantes
+
+def incrementar():
+    constantes.numero+=1
+    return constantes.numero
+
+def crear_hoja(produccion, parametro):
+    nodo = NodoArbol(produccion,parametro)
+    return nodo
+
+def agregar_hijo(nodo, hijo):
+    nodo.agregar_hijos(hijo)
+    return nodo
+
+def recorrer_arbol(nodoRaiz):
+    #print(nodoRaiz.hijos)
+    #for nodo in nodoRaiz.hijos:
+     
+     #  recorrer_arbol(nodo)
+    print(imprimir_arbol(nodoRaiz,0))
+    
+def imprimir_arbol(nodoRaiz, id):
+    var=0
+    cuerpo=""
+    id_s=str(id)
+    
+    for hijo in nodoRaiz.hijos:
+        var=incrementar()
+        var_s=str(var)
+        cuerpo += "\""+id_s+""+ nodoRaiz.produccion + "\"->\""+var_s+""+hijo.produccion+"\""+"\n"
+        aux = imprimir_arbol(hijo, var)+"\n";  
+        cuerpo = cuerpo + aux
+    return cuerpo
 
 palabrasreservadas = {
     'main' : 'MAIN',
@@ -50,13 +84,18 @@ tokens = [
     'SHIFTDER',
     'SHIFTIZQ',
     'MAYORIGUALQUE',
-    'MENORIGUALQUE'
+    'MENORIGUALQUE',
+    'LLAVEIZQ',
+    'LLAVEDER',
+    'STRING'
 ]+ list(palabrasreservadas.values())
 
 t_DOSPUNTOS     = r':'
 t_PARIZQ        = r'\('
 t_PARDER        = r'\)'
 t_IGUAL         = r'='
+t_LLAVEIZQ      = r'\['
+t_LLAVEDER      = r'\]'
 t_PUNTERO       = r'\&'
 t_PUNTOCOMA     = r';'
 t_SUMA          = r'\+'
@@ -113,7 +152,10 @@ def t_CADENA(t):
     r'\'.*?\''
     t.value = t.value[1:-1]
     return t
-
+def t_STRING(t):
+    r'\".*?\"'
+    t.value = t.value[1:-1]
+    return t
 # Comentario simple // ...
 def t_COMENTARIO(t):
     r'\#.*\n'
@@ -151,21 +193,26 @@ def p_init(t) :
     'inicio            : instruccion'
     print("Todo correcto!")
     t[0] = t[1]
-   # print(t[0])
+    recorrer_arbol(t[0])
+
 def p_instruccion(t) :
     '''instruccion      : MAIN DOSPUNTOS listainstrucciones '''
     t[0]=t[3]
 
 def p_listainstrucciones(t):
     'listainstrucciones : listainstrucciones lista'
-    t[1].append(t[2])
+   
     t[0] = t[1]
+    t[0] = agregar_hijo(t[0],t[2])
 
 def p_lista_listainstrucciones(t):
     'listainstrucciones : lista'
-    t[0] = [t[1]]
+    t[0] = crear_hoja('l_inst','')
+    t[0] = agregar_hijo(t[0],t[1])
+
+   
 def p_lista(t):
-    '''lista : inst_asignacion
+    '''lista :    inst_asignacion
                 | inst_imprimir
                 | inst_if
                 | inst_goto
@@ -177,127 +224,212 @@ def p_lista(t):
     t[0]=t[1]
 
 def p_inst_asignacion(t):
-    '''inst_asignacion : VAR IGUAL expresion PUNTOCOMA
+    '''inst_asignacion : variable IGUAL expresion PUNTOCOMA 
                           '''
     # print(t[3])
-    t[0] = Asignacion(t[1], t[3])
+    t[0] = crear_hoja('asignacion','')
+    t[0] = agregar_hijo(t[0],t[1])
+    t[0] = agregar_hijo(t[0],t[3])
+    #t[0] = Asignacion(t[1], t[3])
+
+def p_variable_normal(t):
+    'variable : VAR'
+   #  t[0] = ('var',t[1])
+    t[0] = crear_hoja('variable','')
+    hijo = crear_hoja('var', t[1])
+    t[0] = agregar_hijo(t[0],hijo)
+
+def p_variable_arreglo_lista(t):
+    'variable  : variable var_arreglo '
+   
+    t[0] = t[1]
+    hijo = crear_hoja('l_accesso','')
+    hijos = t[2]
+    hijo = agregar_hijo(hijo,hijos)
+    t[0] = agregar_hijo(t[0],hijo)
+
+def p_variable_cochetes(t):
+    'var_arreglo : LLAVEIZQ valorp LLAVEDER' 
+   
+    t[0] = t[2]
+   
+
 def p_inst_asignacion_numerica(t):
     'expresion : expresion_num'
-    t[0] = t[1] 
-def p_inst_asignacion_relacional(t):
-    'expresion : expresion_relacional'
-    t[0] =  t[1]
+    t[0]= t[1]
+
 def p_inst_asignacion_conversion(t):
     'expresion : conversion'
     t[0] = t[1]
 def p_inst_asignacion_read(t):
     'expresion : leer_valor'
     t[0] = t[1]
-def p_expresion_numerica_binaria(t):
-    '''expresion_num :     expresion_num SUMA expresion_num
-                         | expresion_num RESTA expresion_num
-                         | expresion_num MULTI expresion_num
-                         | expresion_num DIV expresion_num
-                         | expresion_num RESIDUO expresion_num'''
 
-    if   t[2] == '+':     t[0] = ExpresionBi(t[1], t[3], OPERACION_ARITMETICA.SUMA)
-    elif t[2] == '-':     t[0] = ExpresionBi(t[1], t[3], OPERACION_ARITMETICA.RESTA)
-    elif t[2] == '*':     t[0] = ExpresionBi(t[1], t[3], OPERACION_ARITMETICA.MULTI)
-    elif t[2] == '/':     t[0] = ExpresionBi(t[1], t[3], OPERACION_ARITMETICA.DIV)
-    elif t[2] == '%':     t[0] = ExpresionBi(t[1], t[3], OPERACION_ARITMETICA.RESIDUO)
-    
-def p_expresion_unaria(t):
-    'expresion_num : RESTA expresion_num %prec UMENOS'
-    t[0] = ExpresionNegativo(t[2])   
+def p_inst_asignacion_arreglo(t):
+    'expresion : variable'
+    t[0] = t[1]
+
+
+def p_expresion_numerica_binaria(t):
+    'expresion_num : valorp op valorp'
+                        
+
+    t[0]=crear_hoja(t[2].valor,'')
+    t[0]=agregar_hijo(t[0],t[1])
+    t[0]=agregar_hijo(t[0],t[2])
+    t[0]=agregar_hijo(t[0],t[3])
+
+def p_op(t):
+    '''op : SUMA
+          | RESTA
+          | MULTI
+          | DIV
+          | RESIDUO
+          | MAYORQUE
+          | MENORQUE
+          | IGUALQUE
+          | MAYORIGUALQUE
+          | MENORIGUALQUE
+          | NIGUALQUE
+          | AND
+          | OR
+          | XOR   
+    '''  
+    if   t[1] == '+':     
+             t[0]= crear_hoja('suma','exp_num')
+    elif t[1] == '-':   
+            t[0]= crear_hoja('resta','exp_num')
+    elif t[1] == '*':    
+            t[0]= crear_hoja('multi','exp_num')
+    elif t[1] == '/':   
+            t[0]= crear_hoja('div','exp_num')
+    elif t[1] == '%':    
+            t[0]= crear_hoja('residuo','exp_num')
+    elif t[1] == '>'  :
+            t[0]= crear_hoja('mayorque','exp_rel')
+    elif t[1] == '<'  :
+            t[0]= crear_hoja('menorque','exp_rel')
+    elif t[1] == '==' : 
+            t[0]= crear_hoja('igualque','exp_rel')
+    elif t[1] == '!=' :
+            t[0]= crear_hoja('noigual','exp_rel')
+    elif t[1] == '>=' : 
+            t[0]= crear_hoja('mayorigualque','exp_rel')
+    elif t[1] == '<=' :
+            t[0]= crear_hoja('menorigualque','exp_rel')
+    elif t[1] == '&&' :
+            t[0]= crear_hoja('and','exp_log')
+    elif t[1] == '||' :
+            t[0]= crear_hoja('or','exp_log')
+    elif t[1] == 'xor' : 
+            t[0]= crear_hoja('xor','exp_log')
+
+def p_expresion_unaria_negativo(t):
+    'expresion_num : RESTA valorp %prec UMENOS'
+    t[0] = crear_hoja('negativo','')
+    t[0] = agregar_hijo(t[0],t[2])
+
 
 def p_expresion_absoluto(t):
-    'expresion_num : ABSOLUTO PARIZQ expresion_num PARDER '
+    'expresion_num : ABSOLUTO PARIZQ valorp PARDER '
     #print(t[3])
-    t[0] = ExpresionAbsoluto(t[3])
-def p_expresion_numerica_valor(t):
-    'expresion_num : valorp'   
-    t[0]=t[1]
+   # t[0] = ExpresionAbsoluto(t[3])
+   
+def p_expresion_unaria(t):
+    'expresion_num :  valorp'
 
+    t[0]=t[1]
 def p_valorp_numerico(t):
     '''valorp : DECIMAL
-                | ENTERO
     '''
-    t[0] = ExpresionNumero(t[1])
+    t[0]=crear_hoja('decimal',t[1])
+    #t[0] = ExpresionNumero(t[1])
+def p_valorp_numerico_entero(t):
+    '''valorp : ENTERO
+    '''
+    t[0]=crear_hoja('entero',t[1])
+
 
 def p_valorp_cadena(t):
     '''valorp : CADENA
+                | STRING
+                
     '''
-    t[0] = ExpresionCadenaComillas(t[1])
+    t[0] =crear_hoja('cadena',t[1])
+    #t[0] = ExpresionCadenaComillas(t[1])
 def p_valorp_variable(t):
     'valorp : VAR'
-    t[0] = ExpresionID(t[1])
+   # t[0] = ExpresionID(t[1])
+    t[0] = crear_hoja('var',t[1])
 
 def p_valor_identificador_label(t):
     'valorp : ID'
-    t[0] = ExpresionLabel(t[1])
+    t[0] = crear_hoja('etiqueta',t[1])
     
 
-def p_expresion_relacional(t):
-    '''expresion_relacional :        expresion_num MAYORQUE expresion_num
-                                   | expresion_num MENORQUE expresion_num
-                                   | expresion_num IGUALQUE expresion_num
-                                   | expresion_num NIGUALQUE expresion_num
-                                   | expresion_num MAYORIGUALQUE expresion_num
-                                   | expresion_num MENORIGUALQUE expresion_num
-                                   | expresion_num AND expresion_num
-                                   | expresion_num OR expresion_num
-                                   | expresion_num XOR expresion_num
-                                  
-    '''
-    if   t[2] == '>'  : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.MAYORQUE)
-    elif t[2] == '<'  : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.MENORQUE)
-    elif t[2] == '==' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.IGUAL)
-    elif t[2] == '!=' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.DIFERENTE)
-    elif t[2] == '>=' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.MAYOR_IGUAL_QUE)
-    elif t[2] == '<=' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.MENOR_IGUAL_QUE)
-    elif t[2] == '&&' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.AND)
-    elif t[2] == '||' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.OR)
-    elif t[2] == 'xor' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.XOR)
-
 def p_expresion_relacional_not(t):
-    'expresion_relacional : NOT expresion_num'
-    t[0] = ExpresionLogicaNot(t[2], OPERACION_LOGICA.NOT)
+    'expresion_num : NOT valorp'
+    #t[0] = ExpresionLogicaNot(t[2], OPERACION_LOGICA.NOT)
+    t[0] = crear_hoja('not_log','')
+    t[0] = agregar_hijo(t[0],t[2])
 
 def p_conversion(t):
-    '''conversion : PARIZQ valor_conversion PARDER expresion_num
+    '''conversion : PARIZQ valor_conversion PARDER VAR
     '''
-    print(t[2],t[4])
+    t[0] = crear_hoja('conversion','')
+    t[0] = agregar_hijo(t[0],t[2])
+
+    hijo = crear_hoja('var',t[4])
+    t[0] = agregar_hijo(t[0],hijo)
+     
+  
+    #t[0] = ExpresionConversion(t[2],t[4])
 def p_valor_conversion(t):
     '''valor_conversion : INT
                         | FLOAT
                         | CHAR
     
     '''
+    if   t[1] == 'int':     
+             t[0]= crear_hoja('int','conversion')
+    elif t[1] == 'float':   
+            t[0]= crear_hoja('float','conversion')
+    elif t[1] == 'char':    
+            t[0]= crear_hoja('char','conversion')
 def p_read_valor(t):
     'leer_valor : READ PARIZQ PARDER' 
     
-    
+    t[0] = crear_hoja('read','')
 def p_etiqueta(t):
     'etiqueta : ID DOSPUNTOS'
-    t[0] = ExpresionLabel(t[1])
+    t[0] =crear_hoja('label','')
+    hijo= crear_hoja('id',t[1])
+    t[0] = agregar_hijo(t[0],hijo)
+    #t[0] = ExpresionLabel(t[1])
 
 def p_inst_unset(t):
     'inst_unset : UNSET PARIZQ VAR PARDER PUNTOCOMA'
-
+    t[0] = crear_hoja('unset','')
+    t[0] = agregar_hijo(t[0],t[3])
 
 def p_inst_exit(t):
     'inst_exit : EXIT PUNTOCOMA'
-
+    t[0] = agregar_hijo(t[0],crear_hoja('exit',''))
 def p_inst_imprimir(t):
     'inst_imprimir       : IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA'
-    t[0] = Imprimir(t[3])
+    #t[0] = Imprimir(t[3])
+    t[0] =crear_hoja('imprimir','')
+    t[0] = agregar_hijo(t[0],t[3])
     
 def p_inst_if(t):
     'inst_if : IF PARIZQ expresion PARDER GOTO ID PUNTOCOMA'
-    print(t[1],t[2],t[3],t[4],t[5],t[6], t[7])
+    #print(t[1],t[2],t[3],t[4],t[5],t[6], t[7])
 def p_inst_goto(t):
     'inst_goto : GOTO ID PUNTOCOMA'
-    print(t[1],t[2])
+    #print(t[1],t[2])
+    t[0] = crear_hoja('goto','')
+    t[0] = agregar_hijo(t[0],t[2])
+
 
 #////////////////////////////////////////////////////////////////////////////////////
 
@@ -314,7 +446,7 @@ def p_error(p):
           # Just discard the token and tell the parser it's okay.
           parser.errok()
      else:
-          print("Syntax error at EOF")
+          print("\n")
 
 import ply.yacc as yacc
 parser = yacc.yacc()

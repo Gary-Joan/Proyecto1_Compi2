@@ -13,7 +13,7 @@ def procesar_instruccion_imprimir(instr, ts) :
 
 
 def procesar_asignacion(instr, ts) :
-  #  print(instr.exp)
+    #print(instr.exp)
     if isinstance(instr.exp, ExpresionCadenaComillas):
         sim = TS.Simbolo(instr.id, TS.TIPO_DATO.CADENA, "")
         ts.add_symbol(sim)
@@ -48,7 +48,7 @@ def procesar_asignacion(instr, ts) :
             ts.update_symbol(simbolo)
 
     elif isinstance(instr.exp, ExpresionLogicaBinaria):
-       
+
         sim = TS.Simbolo(instr.id, TS.TIPO_DATO.BOOL, 0)
         ts.add_symbol(sim) 
         val = resolver_expresion_logica(instr.exp, ts)
@@ -82,14 +82,82 @@ def procesar_asignacion(instr, ts) :
         val = resolver_expresion_aritmetica(instr.exp, ts)
         simbolo = TS.Simbolo(instr.id, TS.TIPO_DATO.NUMERO, val)
         ts.update_symbol(simbolo)
+    elif isinstance(instr.exp, ExpresionID):
+        if(ts.get_symbol(instr.id)==False):
+            sim = TS.Simbolo(instr.id, instr.tipo, 0)
+            ts.add_symbol(sim)
+            val = resolver_cadena(instr.exp, ts)
+            simbolo = TS.Simbolo(instr.id, instr.tipo, val)
+            ts.update_symbol(simbolo)
+           
+        else:
+            val = resolver_cadena(instr.exp, ts)
+            simbolo = TS.Simbolo(instr.id, instr.tipo, val)
+            ts.update_symbol(simbolo)
+    elif isinstance(instr.exp,ExpresionConversion):
+        if(ts.get_symbol(instr.id)==False):
+           print('entro')
+           val = resolver_conversion(instr.exp, ts) 
+           print(type(val),val)
  
+def resolver_conversion(expConv, ts):
+    #print(expConv)
+    if isinstance(expConv, ExpresionConversion):
+      valorid = ts.get_symbol(expConv.id)  
+      print(type(valorid.valor))
+      if expConv.valorc == 'int':  # ##### entro conversion int
+        if isinstance(valorid.valor, float):
+             return int(valorid.valor)
+        elif isinstance(valorid.valor, int):
+             return int(valorid.valor)
+        elif isinstance(valorid.valor , str):
+             if len(valorid.valor)==1:
+                 return ord(valorid.valor)
+             else:
+                 return ord(valorid.valor[0])
+        elif isinstance(valorid.valor, list):
+            print('es una array')
+
+      elif expConv.valorc == 'float':# ##### entro conversion float
+        print('entro float')
+        if isinstance(valorid.valor, float):
+             return valorid.valor
+        elif isinstance(valorid.valor, int):
+             return float(valorid.valor)  
+        elif isinstance(valorid.valor , str):
+             if len(valorid.valor)==1:
+                 return float(ord(valorid.valor))
+             else:
+                 return float(ord(valorid.valor[0]))
+        elif isinstance(valorid.valor, list):
+            print('es una array')
+
+      elif expConv.valorc == 'char':# ##### entro conversion char
+        print('entro char')  
+        if isinstance(valorid.valor, float):
+            valorid.valor=int(valorid.valor)
+            if valorid.valor >=0 and valorid.valor<=255:
+                return chr(valorid.valor)
+            else:
+                return chr(valorid.valor % 256)
+        elif isinstance(valorid.valor, int):
+            if valorid.valor >=0 and valorid.valor<=255:
+                return chr(valorid.valor)
+            else:
+                return chr(valorid.valor % 256)
+        elif isinstance(valorid.valor , str):
+            return valorid.valor[0]
+        elif isinstance(valorid.valor, list):
+            print('es una array')          
 
 
 def resolver_cadena(expCad, ts) :
     
     if isinstance(expCad, ExpresionID) :
-        
-        return ts.get_symbol(expCad.id).valor
+        if ts.get_symbol(expCad.id)==False:
+            return False
+        else:    
+            return ts.get_symbol(expCad.id).valor
     elif isinstance(expCad, ExpresionBi) :
 
         return str(resolver_expresion_aritmetica(expCad, ts))
@@ -175,4 +243,4 @@ input = f.read()
 instrucciones = gr.parse(input)
 ts_global = TS.tabladesimbolos()
 
-procesar_instrucciones(instrucciones, ts_global)
+#procesar_instrucciones(instrucciones, ts_global)

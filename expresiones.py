@@ -113,3 +113,12 @@ class Expresionleer(ExpresionRead):
 
     def __init__(self):
         super().__init__()
+
+class ExpresionConvert():
+    'esta clase va servir para representar una conversion'
+
+class ExpresionConversion(ExpresionConvert):
+
+    def __init__(self, valorc, id):
+        self.valorc = valorc
+        self.id = id

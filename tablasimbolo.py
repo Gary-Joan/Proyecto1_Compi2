@@ -5,6 +5,7 @@ class TIPO_DATO(Enum):
     NUMERO = 1
     CADENA = 2
     BOOL = 3
+    ARREGLO = 4
 
 class Simbolo():
 
@@ -25,9 +26,10 @@ class tabladesimbolos():
 
     def get_symbol(self, id):
         if not id in self.simbolos:
-           # print('Error: variable ', id, ' no definida.')
+            #print('Error: variable ', id, ' no definida.')
             return False
-        return self.simbolos[id]
+        else:
+            return self.simbolos[id]
 
     def update_symbol(self, simbolo):
         if not simbolo.id in self.simbolos:
