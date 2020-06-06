@@ -8,6 +8,10 @@ from lista_instrucciones import *
 from expresiones import *
 from NodoArbol import NodoArbol 
 import constantes
+import os
+from graphviz import render
+
+
 
 def incrementar():
     constantes.numero+=1
@@ -26,8 +30,25 @@ def recorrer_arbol(nodoRaiz):
     #for nodo in nodoRaiz.hijos:
      
      #  recorrer_arbol(nodo)
-    print(imprimir_arbol(nodoRaiz,0))
-    
+    graficar_arbol(imprimir_arbol(nodoRaiz,0))
+    render('dot', 'png', 'AST_asc.dot') 
+    #print(imprimir_arbol(nodoRaiz,0))
+
+def graficar_arbol(arbol):
+    try:
+        file = open("./AST_asc.dot", "w")
+        file.write("digraph G {node[shape=box, style=filled, color=Gray95]; edge[color=blue];rankdir=UD \n" + os.linesep)
+
+        file.write(arbol)
+        file.write("\n")
+        file.write("}")
+        file.close()
+    except IOError:
+        print(IOError)
+        
+        
+
+
 def imprimir_arbol(nodoRaiz, id):
     var=0
     cuerpo=""
@@ -36,7 +57,7 @@ def imprimir_arbol(nodoRaiz, id):
     for hijo in nodoRaiz.hijos:
         var=incrementar()
         var_s=str(var)
-        cuerpo += "\""+id_s+""+ nodoRaiz.produccion + "\"->\""+var_s+""+hijo.produccion+"\""+"\n"
+        cuerpo += "\""+id_s+"_"+ nodoRaiz.produccion + "\"->\""+var_s+"_"+hijo.produccion+"\""+"\n"
         aux = imprimir_arbol(hijo, var)+"\n";  
         cuerpo = cuerpo + aux
     return cuerpo
@@ -53,6 +74,7 @@ palabrasreservadas = {
     'int'   : 'INT',
     'float' : 'FLOAT',
     'char'  : 'CHAR',
+    'array' : 'ARRAY'
 }
 
 tokens = [
@@ -87,7 +109,12 @@ tokens = [
     'MENORIGUALQUE',
     'LLAVEIZQ',
     'LLAVEDER',
-    'STRING'
+    'STRING',
+    'NOTBIT',
+    'ANDBIT',
+    'ORBIT',
+    'XORBIT',
+    'CADENADOBLE'
 ]+ list(palabrasreservadas.values())
 
 t_DOSPUNTOS     = r':'
@@ -115,6 +142,10 @@ t_OR            = r'\|\|'
 t_XOR           = r'xor'
 t_SHIFTDER      = r'>>'
 t_SHIFTIZQ      = r'<<'
+t_NOTBIT        = r'\~'
+t_ANDBIT        = r'\&'
+t_ORBIT         = r'\|'
+t_XORBIT        = r'\^'
 
 
 
@@ -150,6 +181,10 @@ def t_ID(t):
 
 def t_CADENA(t):
     r'\'.*?\''
+    t.value = t.value[1:-1]
+    return t
+def t_CADENADOBLE(t):
+    r'\".*?\"'
     t.value = t.value[1:-1]
     return t
 def t_STRING(t):
@@ -189,10 +224,12 @@ precedence = (
     )
 
 
+
 def p_init(t) :
     'inicio            : instruccion'
     print("Todo correcto!")
     t[0] = t[1]
+    Raiz = t[0]
     recorrer_arbol(t[0])
 
 def p_instruccion(t) :
@@ -207,7 +244,7 @@ def p_listainstrucciones(t):
 
 def p_lista_listainstrucciones(t):
     'listainstrucciones : lista'
-    t[0] = crear_hoja('l_inst','')
+    t[0] = crear_hoja('lista_inst','')
     t[0] = agregar_hijo(t[0],t[1])
 
    
@@ -243,7 +280,7 @@ def p_variable_arreglo_lista(t):
     'variable  : variable var_arreglo '
    
     t[0] = t[1]
-    hijo = crear_hoja('l_accesso','')
+    hijo = crear_hoja('param_accesso','')
     hijos = t[2]
     hijo = agregar_hijo(hijo,hijos)
     t[0] = agregar_hijo(t[0],hijo)
@@ -267,8 +304,11 @@ def p_inst_asignacion_read(t):
 
 def p_inst_asignacion_arreglo(t):
     'expresion : variable'
+    t[0] = crear_hoja('valorIMP','')
+    t[0] = agregar_hijo(t[0],t[1])
+def p_inst_array(t):
+    'expresion : inst_array'
     t[0] = t[1]
-
 
 def p_expresion_numerica_binaria(t):
     'expresion_num : valorp op valorp'
@@ -293,7 +333,11 @@ def p_op(t):
           | NIGUALQUE
           | AND
           | OR
-          | XOR   
+          | XOR
+          | NOTBIT
+          | ANDBIT
+          | ORBIT
+          | XORBIT   
     '''  
     if   t[1] == '+':     
              t[0]= crear_hoja('suma','exp_num')
@@ -323,6 +367,14 @@ def p_op(t):
             t[0]= crear_hoja('or','exp_log')
     elif t[1] == 'xor' : 
             t[0]= crear_hoja('xor','exp_log')
+    elif t[1] == '~' : 
+            t[0]= crear_hoja('notbit','exp_bit_bit')            
+    elif t[1] == '&' : 
+            t[0]= crear_hoja('andbit','exp_bit_bit')           
+    elif t[1] == '|' : 
+            t[0]= crear_hoja('orbit','exp_bit_bit')
+    elif t[1] == '^' : 
+            t[0]= crear_hoja('xorbit','exp_bit_bit')  
 
 def p_expresion_unaria_negativo(t):
     'expresion_num : RESTA valorp %prec UMENOS'
@@ -353,6 +405,7 @@ def p_valorp_numerico_entero(t):
 def p_valorp_cadena(t):
     '''valorp : CADENA
                 | STRING
+                | CADENADOBLE
                 
     '''
     t[0] =crear_hoja('cadena',t[1])
@@ -414,7 +467,12 @@ def p_inst_unset(t):
 
 def p_inst_exit(t):
     'inst_exit : EXIT PUNTOCOMA'
-    t[0] = agregar_hijo(t[0],crear_hoja('exit',''))
+    t[0] = crear_hoja('exit','')
+
+def p_array(t):
+    'inst_array : ARRAY PARIZQ PARDER'
+    t[0] = crear_hoja('array','')  
+
 def p_inst_imprimir(t):
     'inst_imprimir       : IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA'
     #t[0] = Imprimir(t[3])
@@ -424,11 +482,19 @@ def p_inst_imprimir(t):
 def p_inst_if(t):
     'inst_if : IF PARIZQ expresion PARDER GOTO ID PUNTOCOMA'
     #print(t[1],t[2],t[3],t[4],t[5],t[6], t[7])
+    t[0] = crear_hoja('sentenciaif','')
+    t[0] = agregar_hijo(t[0],t[3])
+    hijo_go = crear_hoja('goto','')
+    hijo= crear_hoja('label',t[6])
+    hijo_go= agregar_hijo(hijo_go,hijo)
+    t[0] = agregar_hijo(t[0],hijo_go)
+
 def p_inst_goto(t):
     'inst_goto : GOTO ID PUNTOCOMA'
     #print(t[1],t[2])
     t[0] = crear_hoja('goto','')
-    t[0] = agregar_hijo(t[0],t[2])
+    hijo = crear_hoja('label',t[2])
+    t[0] = agregar_hijo(t[0],hijo)
 
 
 #////////////////////////////////////////////////////////////////////////////////////
@@ -458,4 +524,5 @@ parser = yacc.yacc()
 
 
 def parse(input) :
-    return parser.parse(input)
+    Raiz=parser.parse(input)
+    return Raiz
