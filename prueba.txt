@@ -1,4 +1,7 @@
-main:
-$t1=4-1;
-$t2 = $t1>=4;
+main: 
+$t1 = array();
+$t1=2+4;
+$t2=4;
+
+print($t1);
 print($t2);

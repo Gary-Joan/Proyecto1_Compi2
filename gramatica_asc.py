@@ -74,7 +74,8 @@ palabrasreservadas = {
     'int'   : 'INT',
     'float' : 'FLOAT',
     'char'  : 'CHAR',
-    'array' : 'ARRAY'
+    'array' : 'ARRAY',
+    'xor'   : 'XOR'
 }
 
 tokens = [
@@ -102,7 +103,6 @@ tokens = [
     'NOT',
     'AND',
     'OR',
-    'XOR',
     'SHIFTDER',
     'SHIFTIZQ',
     'MAYORIGUALQUE',
@@ -139,7 +139,6 @@ t_RESIDUO       = r'%'
 t_NOT           = r'!'
 t_AND           = r'\&\&'
 t_OR            = r'\|\|'
-t_XOR           = r'xor'
 t_SHIFTDER      = r'>>'
 t_SHIFTIZQ      = r'<<'
 t_NOTBIT        = r'\~'
@@ -191,7 +190,7 @@ def t_STRING(t):
     r'\".*?\"'
     t.value = t.value[1:-1]
     return t
-# Comentario simple // ...
+# Comentario simple # ...
 def t_COMENTARIO(t):
     r'\#.*\n'
     t.lexer.lineno += 1
@@ -278,7 +277,7 @@ def p_variable_normal(t):
 
 def p_variable_arreglo_lista(t):
     'variable  : variable var_arreglo '
-   
+    
     t[0] = t[1]
     hijo = crear_hoja('param_accesso','')
     hijos = t[2]
@@ -386,6 +385,8 @@ def p_expresion_absoluto(t):
     'expresion_num : ABSOLUTO PARIZQ valorp PARDER '
     #print(t[3])
    # t[0] = ExpresionAbsoluto(t[3])
+    t[0] = crear_hoja('abs','')
+    t[0] = agregar_hijo(t[0],t[3])
    
 def p_expresion_unaria(t):
     'expresion_num :  valorp'

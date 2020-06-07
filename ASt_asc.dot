@@ -5,33 +5,43 @@ digraph G {node[shape=box, style=filled, color=Gray95]; edge[color=blue];rankdir
 "2_variable"->"3_var"
 
 
-"1_asignacion"->"4_exp_num"
-"4_exp_num"->"5_entero"
-
-"4_exp_num"->"6_resta"
-
-"4_exp_num"->"7_entero"
+"1_asignacion"->"4_array"
 
 
+"0_lista_inst"->"5_asignacion"
+"5_asignacion"->"6_variable"
+"6_variable"->"7_var"
 
-"0_lista_inst"->"8_asignacion"
-"8_asignacion"->"9_variable"
-"9_variable"->"10_var"
 
+"5_asignacion"->"8_exp_num"
+"8_exp_num"->"9_entero"
 
-"8_asignacion"->"11_exp_rel"
-"11_exp_rel"->"12_var"
+"8_exp_num"->"10_suma"
 
-"11_exp_rel"->"13_mayorigualque"
-
-"11_exp_rel"->"14_entero"
+"8_exp_num"->"11_entero"
 
 
 
-"0_lista_inst"->"15_imprimir"
-"15_imprimir"->"16_valorIMP"
-"16_valorIMP"->"17_variable"
-"17_variable"->"18_var"
+"0_lista_inst"->"12_asignacion"
+"12_asignacion"->"13_variable"
+"13_variable"->"14_var"
+
+
+"12_asignacion"->"15_entero"
+
+
+"0_lista_inst"->"16_imprimir"
+"16_imprimir"->"17_valorIMP"
+"17_valorIMP"->"18_variable"
+"18_variable"->"19_var"
+
+
+
+
+"0_lista_inst"->"20_imprimir"
+"20_imprimir"->"21_valorIMP"
+"21_valorIMP"->"22_variable"
+"22_variable"->"23_var"
 
 
 

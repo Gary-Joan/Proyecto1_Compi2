@@ -1,8 +1,7 @@
 
 import gramatica_asc as gr
 import tablasimbolo as TS
-from lista_instrucciones import *
-from expresiones import *
+
 from acciones import acciones
 
 
