@@ -25,7 +25,7 @@ class Simbolo():
         #self.dimension = dimension
         #self.referencia = referencia
 
-class tabladesimbolos():
+class tabladesimbolos(object):
     def __init__(self, simbolos={}):
         self.simbolos = simbolos
 

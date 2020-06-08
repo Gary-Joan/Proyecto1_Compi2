@@ -6,6 +6,9 @@ class acciones ():
         self.imprimir="---- Consola-----\n"
         self.error="----- Error ----\n"
         self.tabla_simbolos=tabladesimbolos() #instancio mi tabla simbolos
+        self.lsen=[]
+        self.i=0
+        self.fin=0
     
     def ejecutar (self,):
         self.acciones(self.Raiz)
@@ -14,8 +17,15 @@ class acciones ():
         resutl=None
         if Raiz.produccion=='lista_inst':
             # listas de hijos de produccion lista de instancias
-            for node in Raiz.hijos:
-                resutl= self.acciones(node)
+            self.lsen=Raiz.hijos # es la lista de hijos de lista_inta
+            self.fin=len(self.lsen)
+            for j in range(self.i,self.fin):
+                node=self.lsen[j]
+                resutl=self.acciones(node)
+                # si eel resullt dice que ve vengo de un goto
+                # paro el for y cambio el inicio del i
+                # y vulebo a entrar al mismo metodo
+                
         elif Raiz.produccion=='asignacion':
             # tenes dos hijos
             izq=Raiz.hijos[0] #hijo izq el nombre de la variable
@@ -51,6 +61,7 @@ class acciones ():
             else:
                 #pasos para accesar a un vector
                print('')
+               
 
         elif Raiz.produccion=='var':
             # solo el nombre de la variable
@@ -66,6 +77,7 @@ class acciones ():
         elif Raiz.produccion == 'array':
             
             nuevo_simbolo=Simbolo('sin','array',{},'array','1','1')
+            nuevo_simbolo.valor=tabladesimbolos({})
             resutl=nuevo_simbolo
          
         elif Raiz.produccion == 'exp_num':
@@ -168,7 +180,7 @@ class acciones ():
 
             else:
                 #acceso a un vector
-                a=""
+                result=self.acciones_accesso_array(Raiz)
         
         elif Raiz.produccion=='var':
             # busco el simbolo en la tabla de simbolos
@@ -178,101 +190,105 @@ class acciones ():
 
     def operaciones_aritmeticas(self,izq,der,op):
         result=None
-        if op == 'suma':
-            if izq.tipo=="entero" and der.tipo == "entero": 
-                num=int(izq.valor)+int(der.valor)
-                result=Simbolo('nada','entero',str(num),'var','0','1')
-
-            elif izq.tipo=="decimal" and der.tipo == "entero":
-                num=float(izq.valor)+int(der.valor)
-                result=Simbolo('nada','decimal',str(num),'var','0','1')
-            
-            elif izq.tipo=="entero" and der.tipo == "decimal":
-                num=float(izq.valor)+int(der.valor)
-                result=Simbolo('nada','decimal',str(num),'var','0','1')
-
-            elif izq.tipo=="decimal" and der.tipo == "decimal":
-                num=float(izq.valor)+float(der.valor)
-                result=Simbolo('nada','decimal',str(num),'var','0','1')
-
-            elif izq.tipo=="cadena" and der.tipo == "cadena":
-                num= izq.valor + der.valor
-                result=Simbolo('nada','cadena',str(num),'var','0','1')
-
-        elif op == 'resta':   
-            if izq.tipo=="entero" and der.tipo == "entero": 
-                num=int(izq.valor)-int(der.valor)
-                result=Simbolo('nada','entero',str(num),'var','0','1')
-
-            elif izq.tipo=="decimal" and der.tipo == "entero":
-                num=float(izq.valor)-int(der.valor)
-                result=Simbolo('nada','decimal',str(num),'var','0','1')
-
-            elif izq.tipo=="entero" and der.tipo == "decimal":
-                num=int(izq.valor)-float(der.valor)
-                result=Simbolo('nada','decimal',str(num),'var','0','1') 
-
-            elif izq.tipo=="decimal" and der.tipo == "decimal":
-                num=float(izq.valor)-float(der.valor)
-                result=Simbolo('nada','decimal',str(num),'var','0','1')
-
-        elif op == 'multi':   
-            if izq.tipo=="entero" and der.tipo == "entero": 
-                num=int(izq.valor)*int(der.valor)
-                result=Simbolo('nada','entero',str(num),'var','0','1')
-
-            elif izq.tipo=="decimal" and der.tipo == "entero":
-                num=float(izq.valor)*int(der.valor)
-                result=Simbolo('nada','decimal',str(num),'var','0','1')
-
-            elif izq.tipo=="entero" and der.tipo == "decimal":
-                num=int(izq.valor)*float(der.valor)
-                result=Simbolo('nada','decimal',str(num),'var','0','1')
-
-            elif izq.tipo=="decimal" and der.tipo == "decimal":
-                num=float(izq.valor)*float(der.valor)
-                result=Simbolo('nada','decimal',str(num),'var','0','1')
-
-        elif op == 'div':   
-            try:
-              
+        try:
+            if op == 'suma':
                 if izq.tipo=="entero" and der.tipo == "entero": 
-                    num=int(izq.valor)/int(der.valor)
+                    num=int(izq.valor)+int(der.valor)
                     result=Simbolo('nada','entero',str(num),'var','0','1')
 
                 elif izq.tipo=="decimal" and der.tipo == "entero":
-                    num=float(izq.valor)/int(der.valor)
+                    num=float(izq.valor)+int(der.valor)
                     result=Simbolo('nada','decimal',str(num),'var','0','1')
-
+                
                 elif izq.tipo=="entero" and der.tipo == "decimal":
-                    num=int(izq.valor)/float(der.valor)
+                    num=float(izq.valor)+int(der.valor)
                     result=Simbolo('nada','decimal',str(num),'var','0','1')
 
                 elif izq.tipo=="decimal" and der.tipo == "decimal":
-                    num=float(izq.valor)/float(der.valor)
+                    num=float(izq.valor)+float(der.valor)
                     result=Simbolo('nada','decimal',str(num),'var','0','1')
-            except ZeroDivisionError:
-                print(' ')# aqui se regresa el error en nodo
-        elif op == 'residuo':   
-            try:
-              
+
+                elif izq.tipo=="cadena" and der.tipo == "cadena":
+                    num= izq.valor + der.valor
+                    result=Simbolo('nada','cadena',str(num),'var','0','1')
+
+            elif op == 'resta':   
                 if izq.tipo=="entero" and der.tipo == "entero": 
-                    num=int(izq.valor)%int(der.valor)
+                    num=int(izq.valor)-int(der.valor)
                     result=Simbolo('nada','entero',str(num),'var','0','1')
 
                 elif izq.tipo=="decimal" and der.tipo == "entero":
-                    num=float(izq.valor)%int(der.valor)
+                    num=float(izq.valor)-int(der.valor)
                     result=Simbolo('nada','decimal',str(num),'var','0','1')
 
                 elif izq.tipo=="entero" and der.tipo == "decimal":
-                    num=int(izq.valor)%float(der.valor)
+                    num=int(izq.valor)-float(der.valor)
+                    result=Simbolo('nada','decimal',str(num),'var','0','1') 
+
+                elif izq.tipo=="decimal" and der.tipo == "decimal":
+                    num=float(izq.valor)-float(der.valor)
+                    result=Simbolo('nada','decimal',str(num),'var','0','1')
+
+            elif op == 'multi':   
+                if izq.tipo=="entero" and der.tipo == "entero": 
+                    num=int(izq.valor)*int(der.valor)
+                    result=Simbolo('nada','entero',str(num),'var','0','1')
+
+                elif izq.tipo=="decimal" and der.tipo == "entero":
+                    num=float(izq.valor)*int(der.valor)
+                    result=Simbolo('nada','decimal',str(num),'var','0','1')
+
+                elif izq.tipo=="entero" and der.tipo == "decimal":
+                    num=int(izq.valor)*float(der.valor)
                     result=Simbolo('nada','decimal',str(num),'var','0','1')
 
                 elif izq.tipo=="decimal" and der.tipo == "decimal":
-                    num=float(izq.valor)%float(der.valor)
+                    num=float(izq.valor)*float(der.valor)
                     result=Simbolo('nada','decimal',str(num),'var','0','1')
-            except ZeroDivisionError:
-                print(' ')# aqui se regresa el error en nodo      
+
+            elif op == 'div':   
+                try:
+                
+                    if izq.tipo=="entero" and der.tipo == "entero": 
+                        num=int(izq.valor)/int(der.valor)
+                        result=Simbolo('nada','entero',str(num),'var','0','1')
+
+                    elif izq.tipo=="decimal" and der.tipo == "entero":
+                        num=float(izq.valor)/int(der.valor)
+                        result=Simbolo('nada','decimal',str(num),'var','0','1')
+
+                    elif izq.tipo=="entero" and der.tipo == "decimal":
+                        num=int(izq.valor)/float(der.valor)
+                        result=Simbolo('nada','decimal',str(num),'var','0','1')
+
+                    elif izq.tipo=="decimal" and der.tipo == "decimal":
+                        num=float(izq.valor)/float(der.valor)
+                        result=Simbolo('nada','decimal',str(num),'var','0','1')
+                except ZeroDivisionError:
+                    print(' ')# aqui se regresa el error en nodo
+            elif op == 'residuo':   
+                try:
+                
+                    if izq.tipo=="entero" and der.tipo == "entero": 
+                        num=int(izq.valor)%int(der.valor)
+                        result=Simbolo('nada','entero',str(num),'var','0','1')
+
+                    elif izq.tipo=="decimal" and der.tipo == "entero":
+                        num=float(izq.valor)%int(der.valor)
+                        result=Simbolo('nada','decimal',str(num),'var','0','1')
+
+                    elif izq.tipo=="entero" and der.tipo == "decimal":
+                        num=int(izq.valor)%float(der.valor)
+                        result=Simbolo('nada','decimal',str(num),'var','0','1')
+
+                    elif izq.tipo=="decimal" and der.tipo == "decimal":
+                        num=float(izq.valor)%float(der.valor)
+                        result=Simbolo('nada','decimal',str(num),'var','0','1')
+                except ZeroDivisionError:
+                    print(' ')# aqui se regresa el error en nodo  
+        except AttributeError:
+            print('error')
+
         return result
  #-----------------------------------------------------------------------------EXPRESIONES RELACIONALES-------------------------   
     def acciones_exp_rel(self, Raiz):
@@ -518,47 +534,69 @@ class acciones ():
   #-----------------------------------------------------------------------------CONVERSION DE VALORES---------------------
     def acciones_array(self, Raiz,valorP):
         result = None
-        if Raiz.produccion=='variable':
-           
-            nuevo_simbolo=self.tabla_simbolos.get_symbol(Raiz.hijos[0].valor)
-            cont=0
-            tabla={}
-            aux ={}
-            for nodo in Raiz.hijos:
-                cont+=1
-                #si hijos es mayor a 2 entonces la primer no se toma
-                if len(Raiz.hijos)==2:
-                   if nodo.produccion=='param_accesso' and cont ==2:
-                        valor1=self.accion_get_param(nodo.hijos[0])
-                        tabla=nuevo_simbolo.valor
-                        if valor1 in tabla: 
-                            aux=tabla[valor1]
-                            tabla[valor1]={aux}
-                            tabla[valor1].add(valorP.valor)
+        # raiz es  variable
+        # valor p es el resultado de la exprecion
+        if valorP != None:
+            #ejecuto la asignacion  de la dimencion
+            nombre_variable=Raiz.hijos[0].valor 
+            variable_arry=self.tabla_simbolos.get_symbol(nombre_variable)
+            if(variable_arry!=None and variable_arry.rol=='array'):
+                arbol_param_acceso=Raiz.hijos[1] 
+                if len (arbol_param_acceso.hijos)==1:
+                    # solo una dimencion
+                    id=arbol_param_acceso.hijos[0]
+                    id=self.acciones_exp_num(id)
+                    nuevo_simbolo=Simbolo(id.valor,valorP.tipo,valorP.valor,'var','1','0')
+                    variable_arry.valor.add_symbol(nuevo_simbolo)
+                else:
+                    # mas dimenciones  n 
+                    tam=len(arbol_param_acceso.hijos)
+                    for i in range(tam-1):
+                        hijo=arbol_param_acceso.hijos[i]
+                        id=self.acciones_exp_num(hijo)
+                        nuevo_simbolo=Simbolo(id.valor,'array','','array','1','0')
+                        nuevo_simbolo.valor=tabladesimbolos({})
+                        variable_arry.valor.add_symbol(nuevo_simbolo)
+                        variable_arry=nuevo_simbolo # corrimeinto para la nueva dimencion 
+                    # ultimo hijo parametro y se guarda el valor 
+                    hijo=arbol_param_acceso.hijos[tam-1]
+                    id=self.acciones_exp_num(hijo)
+                    nuevo_simbolo=Simbolo(id.valor,valorP.tipo,valorP.valor,'var','1','0')
+                    variable_arry.valor.add_symbol(nuevo_simbolo)
+
+
+            else:
+                self.error+= "error no es un vec"
+        else:
+            self.error+="Error de asigancion en vec \n"
+                      
+        return  result
     
-                        else:  
-                            tabla[valor1]=valorP.valor
-                            nuevo_simbolo.valor=tabla
-  
-                elif len(Raiz.hijos)==3:
-                    if nodo.produccion=='param_accesso' and cont ==2:
-                        valor1=self.accion_get_param(nodo.hijos[0])
-                        tabla=nuevo_simbolo.valor
-                        if valor1 in tabla: 
- 
-                            aux=tabla[valor1]
-                            
-                        else: 
-                            print('df')
-                        tabla[valor1]={}
-                        nuevo_simbolo.valor=tabla
-                        tabla=tabla[valor1]
-                    elif nodo.produccion=='param_accesso'and cont==3:
-                        valor1=self.accion_get_param(nodo.hijos[0])
-                        tabla[valor1]=valorP.valor
-                        tabla.update(aux)
-            result =nuevo_simbolo                    
-            return  result
+    def acciones_accesso_array(self,Raiz):
+     
+        result=None
+        id_variable=Raiz.hijos[0].valor
+        id_variable_simbolo=self.tabla_simbolos.get_symbol(id_variable)
+        #validar si es rol array y tipo array..........
+        if id_variable_simbolo !=None:
+            arbol_param_acceso=Raiz.hijos[1]
+            for acceso in arbol_param_acceso.hijos:
+                id_acceso=self.acciones_exp_num(acceso)
+                # busco del ambito actual  -> id_variable_simbolo
+                ambito=id_variable_simbolo.valor.get_symbol(id_acceso.valor)
+                if ambito != None:
+                    id_variable_simbolo=ambito
+                else:
+                    self.error+="no existe el acceso"
+                    break
+            if(id_variable_simbolo!=None):
+                result=Simbolo('nada',id_variable_simbolo.tipo,id_variable_simbolo.valor,'valor puntal','1','1')
+                
+                
+        else:
+            self.error+="error no existe\n"
+        return result
+
 
     def accion_get_param(self,hijo):
         print('')

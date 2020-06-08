@@ -1,19 +1,125 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'Augus.ui'
+# Form implementation generated from reading ui file 'prueba.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-from QcoderEditor import *
-from PyQt5.Qsci import QsciScintilla, QsciLexerPython
-class Ui_MainWindow(object):
+#from QcoderEditor import *
+from PyQt5.Qsci import *
+from PyQt5.QtGui import QColor, QFont
+import re
+from PyQt5.QtWidgets import QFileDialog, QMainWindow
+
+import gramatica_asc as gr
+import tablasimbolo as TS
+
+from acciones import acciones
+
+
+class MyLexer(QsciLexerCustom):
+    def __init__(self, parent):
+        super(MyLexer, self).__init__(parent)
+        # Default text settings
+        # ----------------------
+        self.setDefaultColor(QColor("#ff000000"))
+        self.setDefaultPaper(QColor("#ffffffff"))
+        self.setDefaultFont(QFont("Consolas", 8))
+
+        # Initialize colors per style
+        # ----------------------------
+        self.setColor(QColor("#ff000000"), 0)   # Style 0: black
+        self.setColor(QColor("#ff7f0000"), 1)   # Style 1: red
+        self.setColor(QColor("#ff0000bf"), 2)   # Style 2: blue
+        self.setColor(QColor("#ff007f00"), 3)   # Style 3: green
+
+        # Initialize paper colors per style
+        # ----------------------------------
+        self.setPaper(QColor("#ffffffff"), 0)   # Style 0: white
+        self.setPaper(QColor("#ffffffff"), 1)   # Style 1: white
+        self.setPaper(QColor("#ffffffff"), 2)   # Style 2: white
+        self.setPaper(QColor("#ffffffff"), 3)   # Style 3: white
+
+        # Initialize fonts per style
+        # ---------------------------
+        self.setFont(QFont("Consolas", 8, weight=QFont.Bold), 0)   # Style 0: Consolas 14pt
+        self.setFont(QFont("Consolas", 8, weight=QFont.Bold), 1)   # Style 1: Consolas 14pt
+        self.setFont(QFont("Consolas", 8, weight=QFont.Bold), 2)   # Style 2: Consolas 14pt
+        self.setFont(QFont("Consolas", 8, weight=QFont.Bold), 3)   # Style 3: Consolas 14pt
+
+    def language(self):
+        return "SimpleLanguage"
+
+    def description(self, style):
+        if style == 0:
+            return "myStyle_0"
+        elif style == 1:
+            return "myStyle_1"
+        elif style == 2:
+            return "myStyle_2"
+        elif style == 3:
+            return "myStyle_3"
+        ###
+        return ""
+
+    def styleText(self, start, end):
+        # 1. Initialize the styling procedure
+        # ------------------------------------
+        self.startStyling(start)
+
+        # 2. Slice out a part from the text
+        # ----------------------------------
+        text = self.parent().text()[start:end]
+
+        # 3. Tokenize the text
+        # ---------------------
+        p = re.compile(r"[*]\/|\/[*]|\s+|\w+|\W")
+
+        # 'token_list' is a list of tuples: (token_name, token_len)
+        token_list = [ (token, len(bytearray(token, "utf-8"))) for token in p.findall(text)]
+
+        # 4. Style the text
+        # ------------------
+        # 4.1 Check if multiline comment
+        multiline_comm_flag = False
+        editor = self.parent()
+        if start > 0:
+            previous_style_nr = editor.SendScintilla(editor.SCI_GETSTYLEAT, start - 1)
+            if previous_style_nr == 3:
+                multiline_comm_flag = True
+        # 4.2 Style the text in a loop
+        for i, token in enumerate(token_list):
+            if multiline_comm_flag:
+                self.setStyling(token[1], 3)
+                if token[0] == "*/":
+                    multiline_comm_flag = False
+            else:
+                if token[0] in ["array", "print", "abs", "goto", "include"]:
+                    # Red style
+                    self.setStyling(token[1], 1)
+                elif token[0] in ["(", ")", "{", "}", "[", "]", "#"]:
+                    # Blue style
+                    self.setStyling(token[1], 2)
+                elif token[0] == "/*":
+                    multiline_comm_flag = True
+                    self.setStyling(token[1], 3)
+                else:
+                    # Default style
+                    self.setStyling(token[1], 0)
+
+
+
+class Ui_MainWindow(QMainWindow):
+    
+    def __init__(self):
+       QMainWindow.__init__(self)
+       self.filename = ""
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(992, 645)
+        self.filename = ""
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.label = QtWidgets.QLabel(self.centralwidget)
@@ -28,10 +134,15 @@ class Ui_MainWindow(object):
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
         self.label_2.setGeometry(QtCore.QRect(850, 390, 111, 16))
         self.label_2.setObjectName("label_2")
-       
-        self.plainTextEdit_3 = QCodeEditor(self.centralwidget)
-        self.plainTextEdit_3.setGeometry(QtCore.QRect(10, 40, 591, 371))
-        self.plainTextEdit_3.setObjectName("plainTextEdit_3")
+        self.gridLayoutWidget = QtWidgets.QWidget(self.centralwidget)
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 40, 591, 371))
+        self.gridLayoutWidget.setObjectName("gridLayoutWidget")
+        self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout.setObjectName("gridLayout")
+        self.btn_ejecutar = QtWidgets.QPushButton(self.centralwidget)
+        self.btn_ejecutar.setGeometry(QtCore.QRect(10, 10, 93, 28))
+        self.btn_ejecutar.setObjectName("btn_ejecutar")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 992, 26))
@@ -114,12 +225,58 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        self.plainTextEdit_3 = QsciScintilla()
-        self.plainTextEdit_3.setText('jsjf')
-        self.plainTextEdit_3.setLexer(None)
-        
-        self.menuEjecutar.triggered.connect(lambda: self.ejecutar())
 
+        self.btn_ejecutar.clicked.connect(lambda: self.ejecutar())
+        self.actionAbrir.triggered.connect(lambda :self.open())
+
+        self.__myFont = QFont()
+        self.__myFont.setPointSize(8)
+        self.__editor = QsciScintilla()
+        #self.__editor.setText(myCodeSample) 
+        # 'myCodeSample' is a string containing some C-code
+        self.__editor.setLexer(None)            # We install lexer later
+        self.__editor.setUtf8(True)             # Set encoding to UTF-8
+        self.__editor.setFont(self.__myFont)    # Gets overridden by lexer later on
+
+        # 1. Text wrapping
+        # -----------------
+        self.__editor.setWrapMode(QsciScintilla.WrapWord)
+        self.__editor.setWrapVisualFlags(QsciScintilla.WrapFlagByText)
+        self.__editor.setWrapIndentMode(QsciScintilla.WrapIndentIndented)
+
+        # 2. End-of-line mode
+        # --------------------
+        self.__editor.setEolMode(QsciScintilla.EolWindows)
+        self.__editor.setEolVisibility(False)
+
+        # 3. Indentation
+        # ---------------
+        self.__editor.setIndentationsUseTabs(False)
+        self.__editor.setTabWidth(4)
+        self.__editor.setIndentationGuides(True)
+        self.__editor.setTabIndents(True)
+        self.__editor.setAutoIndent(True)
+
+        # 4. Caret
+        # ---------
+        self.__editor.setCaretForegroundColor(QColor("#ff0000ff"))
+        self.__editor.setCaretLineVisible(True)
+        self.__editor.setCaretLineBackgroundColor(QColor("#1f0000ff"))
+        self.__editor.setCaretWidth(2)
+
+        # 5. Margins
+        # -----------
+        # Margin 0 = Line nr margin
+        self.__editor.setMarginType(0, QsciScintilla.NumberMargin)
+        self.__editor.setMarginWidth(0, "0000")
+        self.__editor.setMarginsForegroundColor(QColor("#ff888888"))
+
+        # -------------------------------- #
+        #          Install lexer           #
+        # -------------------------------- #
+        self.__lexer = MyLexer(self.__editor)
+        self.__editor.setLexer(self.__lexer)
+        self.gridLayout.addWidget(self.__editor)
 
 
 
@@ -129,6 +286,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "Augus Intepreter"))
         self.label.setText(_translate("MainWindow", "Consola/Output"))
         self.label_2.setText(_translate("MainWindow", "Tabla de Simbolos"))
+        self.btn_ejecutar.setText(_translate("MainWindow", "Ejecutar"))
         self.menuArchivo.setTitle(_translate("MainWindow", "Archivo"))
         self.menuEditar.setTitle(_translate("MainWindow", "Editar"))
         self.menuEjecutar.setTitle(_translate("MainWindow", "Ejecutar"))
@@ -154,11 +312,13 @@ class Ui_MainWindow(object):
         self.actionAcerca_De.setText(_translate("MainWindow", "Acerca De.."))
         self.actionEjecutar_Descedente.setText(_translate("MainWindow", "Ejecutar Descedente"))
 
+
+
     def ejecutar(self):
         
         #f = open("./prueba.txt", "r")
         #input = f.read()
-        input = self.plainTextEdit_3.toPlainText()
+        input = self.__editor.text()
         Raiz = gr.parse(input)
         #print(Raiz.produccion)
 
@@ -166,7 +326,31 @@ class Ui_MainWindow(object):
         acciones_parser.ejecutar()
         #print(acciones_parser.imprimir)
         self.plainTextEdit.setPlainText(acciones_parser.imprimir)
+        
+    def open(self):
+        self.filename = QFileDialog.getOpenFileName(self, 'Open File', ".", "(*.txt)")
 
+        if self.filename[0]:
+            # Read a file
+            with open(self.filename[0], "rt") as in_file:
+               self.__editor.setText(in_file.read())
+    
+    def save(self):
+
+        # Only open dialog if there is no filename yet
+        if not self.filename:
+          self.filename = QFileDialog.getSaveFileName(self, 'Save File')
+
+        # Append extension if not there yet
+        if not self.filename.endswith(".txt"):
+          self.filename += ".txt"
+
+        # We just store the contents of the text file along with the
+        # format in html, which Qt does in a very nice way for us
+        with open(self.filename,"wt") as file:
+            file.write(self.text.toHtml())
+
+            
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)

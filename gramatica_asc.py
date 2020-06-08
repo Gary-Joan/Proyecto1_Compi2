@@ -202,12 +202,15 @@ t_ignore = " \t"
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
+    t.lexer.linestart = t.lexer.lexpos
+    #t.lexer.lineno += len(t.value)
+
 
 
 def t_error(t):
-    print("Error de caracter '%s'" % t.value[0])
-    t.lexer.skip(1)
-
+        print("Illegal character '%s' on line %d, column %d" % (t.value[0],t.lexer.lineno,t.lexer.lexpos - t.lexer.linestart + 1))
+        t.lexer.skip(1)
+                         
 # Construyendo el analizador léxico
 import ply.lex as lex
 lexer = lex.lex()
@@ -279,10 +282,16 @@ def p_variable_arreglo_lista(t):
     'variable  : variable var_arreglo '
     
     t[0] = t[1]
-    hijo = crear_hoja('param_accesso','')
-    hijos = t[2]
-    hijo = agregar_hijo(hijo,hijos)
-    t[0] = agregar_hijo(t[0],hijo)
+    if len(t[0].hijos)==1:
+        hijo = crear_hoja('param_accesso','')
+        hijos = t[2]
+        hijo = agregar_hijo(hijo,hijos)
+        t[0] = agregar_hijo(t[0],hijo)
+    else:
+        hijo=t[0].hijos[1]
+        hijos = t[2]
+        hijo = agregar_hijo(hijo,hijos)
+    
 
 def p_variable_cochetes(t):
     'var_arreglo : LLAVEIZQ valorp LLAVEDER' 
@@ -514,7 +523,6 @@ def p_error(p):
           parser.errok()
      else:
           print("\n")
-
 import ply.yacc as yacc
 parser = yacc.yacc()
 
