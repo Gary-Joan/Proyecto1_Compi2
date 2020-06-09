@@ -1,5 +1,6 @@
 from tablasimbolo import Simbolo, tabladesimbolos
-
+import tkinter as tk
+from tkinter import StringVar
 class acciones ():
     def __init__(self,Raiz):
         self.Raiz=Raiz
@@ -9,7 +10,8 @@ class acciones ():
         self.lsen=[]
         self.i=0
         self.fin=0
-    
+        self.posLabel=0
+
     def ejecutar (self,):
         self.acciones(self.Raiz)
 
@@ -20,12 +22,22 @@ class acciones ():
             self.lsen=Raiz.hijos # es la lista de hijos de lista_inta
             self.fin=len(self.lsen)
             for j in range(self.i,self.fin):
+                self.posLabel+=1
                 node=self.lsen[j]
                 resutl=self.acciones(node)
-                # si eel resullt dice que ve vengo de un goto
-                # paro el for y cambio el inicio del i
-                # y vulebo a entrar al mismo metodo
                 
+                if(resutl!=None):
+                    if(resutl.tipo=='goto'):                      
+                        break
+            if(resutl!=None):
+                if(resutl.tipo=='goto'):
+
+                    self.i=int(resutl.valor)
+                    resutl=self.acciones(self.Raiz)
+                # si el result dice que ve vengo de un goto
+                # paro el for y cambio el inicio del i
+                # y vuelvo a entrar al mismo metodo
+
         elif Raiz.produccion=='asignacion':
             # tenes dos hijos
             izq=Raiz.hijos[0] #hijo izq el nombre de la variable
@@ -35,7 +47,7 @@ class acciones ():
                 izq=self.acciones(izq) # el var y esta en tablal de simblos / objeto simbolo
                 der=self.acciones(der) # obtengo el resultado del arbol exp_num y me devuelve un objeto tipo simbolo o un null si hubo un error
                 if der != None:
-                # no hay un error en tiempo de ejecion
+                # no hay un error en tiempo de ejecucion
     
                     izq.tipo=der.tipo
                     izq.valor=der.valor
@@ -112,14 +124,88 @@ class acciones ():
         
         elif Raiz.produccion == 'conversion':
             resutl = self.acciones_conversion(Raiz)
+        
+        elif Raiz.produccion == 'read':
+            resutl = self.acciones_read(Raiz)
+        
+        ##############  ACCIONES GO TO
+        elif Raiz.produccion == 'label':
+            resutl = self.acciones_label(Raiz)
+        elif Raiz.produccion == 'goto':
+            resutl = self.acciones_goto(Raiz)
 
         return resutl
+ #-----------------------------------------------------------------------------COMANDO READ------------------------------------
+    def acciones_label(self,Raiz):
+        result =None
+        nuevo_simbolo=Simbolo(Raiz.valor,'label',self.posLabel,'label','0','0')
+        result=nuevo_simbolo
+        return result
+
+    def acciones_goto(self,Raiz):
+        result=None
+        label=Raiz.hijos[0].valor
+        pos=self.buscar_etiqueta(label)
+        nuevo_simbolo=Simbolo(label,'goto',pos,'goto','0','0')
+        result=nuevo_simbolo
+        return result
+    
+    
+    def buscar_etiqueta(self, etiqueta):
+        t=0
+        pos=0
+       
+        self.fin=len(self.lsen)
+        for node in self.Raiz.hijos:
+            pos+=1
+            if(node.produccion=='label'):
+                if(node.valor==etiqueta):
+                    t=pos
+                    break
+        return t
+
+
+    def acciones_read(self,Raiz):
+        result=None
+        if(Raiz.produccion=='read'):
+            #valor_lectura = str(input("Ingrese un Valor "))
+            #nuevo_simbolo = Simbolo('sin','var',valor_lectura,'sin','1','1')
+            #result=nuevo_simbolo
+            master = tk.Tk()
+            tk.Label(master, 
+            text="Ingresar Valor ").grid(row=0)
+            
+            v = StringVar()
+            e1 = tk.Entry(master, textvariable=v)
+            
+
+            e1.grid(row=0, column=1)
+            
+
+            tk.Button(master, 
+            text='Ingresar ', 
+            command=master.quit).grid(row=2, 
+                                    column=0, 
+                                    sticky=tk.W, 
+                                    pady=4)
+            
+            tk.mainloop()
+            nuevo_simbolo = Simbolo('sin','var',v.get(),'sin','1','1')
+            result=nuevo_simbolo           
+        else:
+            self.error+= 'Error en la lectura\n'
+
+        return result       
  #-----------------------------------------------------------------------------VALORES NEGATIVOS-------------------------------       
     def  acciones_negativo(self,Raiz):
         result = None
         if Raiz.produccion == 'negativo':
             izq = Raiz.hijos[0]
-            result = self.acciones_negativo(izq)
+            if izq.tipo!='cadena':
+                result = self.acciones_negativo(izq)
+            else:
+                self.error+='No se puede convertir a negativo una cadena'
+                result=None
         elif Raiz.produccion=='var' :
             # busco el simbolo en la tabla de simbolos
             nombre=Raiz.valor #obtengo el nombre de la variable
@@ -136,21 +222,24 @@ class acciones ():
  #-----------------------------------------------------------------------------VALOR ABSOLUTO---------------------------------      
     def acciones_abs(self, Raiz):
         result = None
-        if Raiz.produccion == 'abs':
-            izq = Raiz.hijos[0]
-            result = self.acciones_abs(izq)
-        elif Raiz.produccion=='var' :
-            # busco el simbolo en la tabla de simbolos
-            nombre=Raiz.valor #obtengo el nombre de la variable
-            valor_var=self.tabla_simbolos.get_symbol(nombre)
-            valor_var.valor= str(abs(int(valor_var.valor)))
-            result =self.tabla_simbolos.get_symbol(nombre)
-        elif Raiz.produccion == 'entero':
-            Raiz.valor = abs(Raiz.valor)
-            result = Simbolo('numero','entero',str(Raiz.valor),'var','1','0')
-        elif Raiz.produccion == 'decimal':
-            Raiz.valor = abs(Raiz.valor)
-            result = Simbolo('numero','decimal',str(Raiz.valor),'var','1','0')
+        if result!=None:
+            if Raiz.produccion == 'abs':
+                izq = Raiz.hijos[0]
+                result = self.acciones_abs(izq)
+            elif Raiz.produccion=='var' :
+                # busco el simbolo en la tabla de simbolos
+                nombre=Raiz.valor #obtengo el nombre de la variable
+                valor_var=self.tabla_simbolos.get_symbol(nombre)
+                valor_var.valor= str(abs(int(valor_var.valor)))
+                result =self.tabla_simbolos.get_symbol(nombre)
+            elif Raiz.produccion == 'entero':
+                Raiz.valor = abs(Raiz.valor)
+                result = Simbolo('numero','entero',str(Raiz.valor),'var','1','0')
+            elif Raiz.produccion == 'decimal':
+                Raiz.valor = abs(Raiz.valor)
+                result = Simbolo('numero','decimal',str(Raiz.valor),'var','1','0')
+        else:
+            self.error+="error de valor absoluto\n"
         return result
  #-----------------------------------------------------------------------------EXPRESIONES NUMERICAS------------------------------   
     def acciones_exp_num(self,Raiz):
@@ -546,8 +635,21 @@ class acciones ():
                     # solo una dimencion
                     id=arbol_param_acceso.hijos[0]
                     id=self.acciones_exp_num(id)
-                    nuevo_simbolo=Simbolo(id.valor,valorP.tipo,valorP.valor,'var','1','0')
-                    variable_arry.valor.add_symbol(nuevo_simbolo)
+
+                    if(valorP.tipo == 'cadena'):
+                        id_chr=0
+                        nuevo_simbolo=Simbolo(id.valor,'l_array','','array','1','0')
+                        nuevo_simbolo.valor=tabladesimbolos({})
+                        variable_arry.valor.add_symbol(nuevo_simbolo)
+                        variable_arry=nuevo_simbolo
+                        for i in valorP.valor:
+                            
+                            nuevo_simbolo=Simbolo(str(id_chr),'char',i,'var','1','1')
+                            variable_arry.valor.add_symbol(nuevo_simbolo)
+                            id_chr+=1
+                    else:
+                        nuevo_simbolo=Simbolo(id.valor,valorP.tipo,valorP.valor,'var','1','0')
+                        variable_arry.valor.add_symbol(nuevo_simbolo)
                 else:
                     # mas dimenciones  n 
                     tam=len(arbol_param_acceso.hijos)
@@ -561,14 +663,32 @@ class acciones ():
                     # ultimo hijo parametro y se guarda el valor 
                     hijo=arbol_param_acceso.hijos[tam-1]
                     id=self.acciones_exp_num(hijo)
-                    nuevo_simbolo=Simbolo(id.valor,valorP.tipo,valorP.valor,'var','1','0')
-                    variable_arry.valor.add_symbol(nuevo_simbolo)
+
+                    if(valorP.tipo != 'cadena'):
+                        nuevo_simbolo=Simbolo(id.valor,valorP.tipo,valorP.valor,'var','1','0')
+                        variable_arry.valor.add_symbol(nuevo_simbolo)
+                    else:
+                        nuevo_simbolo=Simbolo(id.valor,'l_array','','array','1','0')
+                        nuevo_simbolo.valor=tabladesimbolos({})
+                        variable_arry.valor.add_symbol(nuevo_simbolo)
+                        variable_arry=nuevo_simbolo 
+                        if(valorP.tipo == 'cadena'):
+                            id_chr=0
+                            for i in valorP.valor:
+                                
+                                nuevo_simbolo=Simbolo(str(id_chr),'char',i,'var','1','1')
+                                variable_arry.valor.add_symbol(nuevo_simbolo)
+                                id_chr+=1
+
+                    #ingresar cadena de caracteres a un vector
+                    
+                   
 
 
             else:
                 self.error+= "error no es un vec"
         else:
-            self.error+="Error de asigancion en vec \n"
+            self.error+="Error de asignacion en vec \n"
                       
         return  result
     
@@ -578,26 +698,77 @@ class acciones ():
         id_variable=Raiz.hijos[0].valor
         id_variable_simbolo=self.tabla_simbolos.get_symbol(id_variable)
         #validar si es rol array y tipo array..........
-        if id_variable_simbolo !=None:
-            arbol_param_acceso=Raiz.hijos[1]
-            for acceso in arbol_param_acceso.hijos:
-                id_acceso=self.acciones_exp_num(acceso)
-                # busco del ambito actual  -> id_variable_simbolo
-                ambito=id_variable_simbolo.valor.get_symbol(id_acceso.valor)
-                if ambito != None:
-                    id_variable_simbolo=ambito
-                else:
-                    self.error+="no existe el acceso"
-                    break
-            if(id_variable_simbolo!=None):
-                result=Simbolo('nada',id_variable_simbolo.tipo,id_variable_simbolo.valor,'valor puntal','1','1')
-                
-                
+        if(id_variable_simbolo!=None and id_variable_simbolo.rol=='array'):
+            if id_variable_simbolo !=None:
+                arbol_param_acceso=Raiz.hijos[1]
+                for acceso in arbol_param_acceso.hijos:
+                    id_acceso=self.acciones_exp_num(acceso)
+                    # busco del ambito actual  -> id_variable_simbolo
+   
+                    ambito=id_variable_simbolo.valor.get_symbol(id_acceso.valor)
+                    if ambito != None:
+                        id_variable_simbolo=ambito
+                    else:
+                        self.error+="no existe el acceso"
+                        id_variable_simbolo=None
+                        break
+                if(id_variable_simbolo!=None):
+                    result=Simbolo('nada',id_variable_simbolo.tipo,id_variable_simbolo.valor,'valor puntal','1','1')
+                    
+                    
+            else:
+                self.error+="error no existe\n"
         else:
-            self.error+="error no existe\n"
+            self.error+="la variable "+id_variable+ " no es un array\n"
         return result
 
 
-    def accion_get_param(self,hijo):
-        print('')
-        return hijo.valor
+    def imprimir_tabla_simbolos(self):
+        cadena_html="""<!DOCTYPE html>
+                                    <html>
+                                    <head>
+                                    <style>
+                                    table {
+                                    font-family: arial, sans-serif;
+                                    border-collapse: collapse;
+                                    width: 100%;
+                                    }
+
+                                    td, th {
+                                    border: 1px solid #dddddd;
+                                    text-align: left;
+                                    padding: 8px;
+                                    }
+
+                                    tr:nth-child(even) {
+                                    background-color: #dddddd;
+                                    }
+                                    </style>
+                                    </head>
+                                    <body>
+
+                                    <h2>Tabla de simbolos</h2>
+
+                                    <table>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>ID</th>
+                                        <th>Valor</th>
+                                        <th>Tipo</th>
+                                    </tr>
+                                    
+                                     """
+        cont=0
+        simbolo=""
+        for key in self.tabla_simbolos.simbolos.items():
+            cont+=1
+            simbolo+="<tr> \n<td>"+str(cont)+"</td>"+"<td>"+str(key[1].id)+"</td>"+"<td>"+str(key[1].valor)+"</td>"+"<td>"+str(key[1].tipo)+"</td></tr>\n"
+
+        cadena_html+=simbolo    
+        cadena_html+="""
+                    </table>
+
+                        </body>
+                        </html>
+                 """
+        return cadena_html

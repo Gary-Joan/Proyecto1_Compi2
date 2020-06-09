@@ -128,7 +128,7 @@ class Ui_MainWindow(QMainWindow):
         self.plainTextEdit = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.plainTextEdit.setGeometry(QtCore.QRect(10, 430, 951, 161))
         self.plainTextEdit.setObjectName("plainTextEdit")
-        self.plainTextEdit_2 = QtWidgets.QPlainTextEdit(self.centralwidget)
+        self.plainTextEdit_2 = QtWidgets.QTextBrowser(self.centralwidget)
         self.plainTextEdit_2.setGeometry(QtCore.QRect(610, 40, 351, 371))
         self.plainTextEdit_2.setObjectName("plainTextEdit_2")
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
@@ -326,6 +326,7 @@ class Ui_MainWindow(QMainWindow):
         acciones_parser.ejecutar()
         #print(acciones_parser.imprimir)
         self.plainTextEdit.setPlainText(acciones_parser.imprimir)
+        self.plainTextEdit_2.setHtml (acciones_parser.imprimir_tabla_simbolos())
         
     def open(self):
         self.filename = QFileDialog.getOpenFileName(self, 'Open File', ".", "(*.txt)")

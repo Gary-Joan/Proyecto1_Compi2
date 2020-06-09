@@ -12,6 +12,12 @@ import os
 from graphviz import render
 
 
+def reporte_de_errores_lexicos():
+    
+    return constantes.errores_lexico
+
+def reporte_de_errores_sintacticos():
+    return constantes.errores_sintantico
 
 def incrementar():
     constantes.numero+=1
@@ -208,7 +214,10 @@ def t_newline(t):
 
 
 def t_error(t):
-        print("Illegal character '%s' on line %d, column %d" % (t.value[0],t.lexer.lineno,t.lexer.lexpos - t.lexer.linestart + 1))
+        a="Caracter desconocido en "+str(t.value[0])+ " en la linea "+str(t.lexer.lineno)+ ", columna "+str(t.lexer.lexpos - t.lexer.linestart + 1)+"\n" 
+        #print(a)
+        constantes.errores_lexico+=str(a)
+        
         t.lexer.skip(1)
                          
 # Construyendo el analizador léxico
@@ -465,9 +474,9 @@ def p_read_valor(t):
     t[0] = crear_hoja('read','')
 def p_etiqueta(t):
     'etiqueta : ID DOSPUNTOS'
-    t[0] =crear_hoja('label','')
-    hijo= crear_hoja('id',t[1])
-    t[0] = agregar_hijo(t[0],hijo)
+    t[0] =crear_hoja('label',t[1])
+    #hijo= crear_hoja('id',t[1])
+    #t[0] = agregar_hijo(t[0],t[1])
     #t[0] = ExpresionLabel(t[1])
 
 def p_inst_unset(t):
@@ -518,11 +527,16 @@ def p_inst_goto(t):
 #ERRORES
 def p_error(p):
      if p:
-          print("Error Sintactico en token", p)
+
+          es="Error sintactico en token "+str(p.value)+" linea "+str(p.lexer.lineno)+" columna "+str(p.lexer.lexpos - p.lexer.linestart )+"\n"
+          constantes.errores_sintantico+=es
+         
           # Just discard the token and tell the parser it's okay.
           parser.errok()
      else:
           print("\n")
+
+
 import ply.yacc as yacc
 parser = yacc.yacc()
 
