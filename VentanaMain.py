@@ -17,7 +17,8 @@ import gramatica_asc as gr
 import tablasimbolo as TS
 
 from acciones import acciones
-
+import sys
+sys.setrecursionlimit(10**6)
 
 class MyLexer(QsciLexerCustom):
     def __init__(self, parent):
@@ -75,7 +76,7 @@ class MyLexer(QsciLexerCustom):
 
         # 3. Tokenize the text
         # ---------------------
-        p = re.compile(r"[*]\/|\/[*]|\s+|\w+|\W")
+        p = re.compile(r"[*]\/|\/[*]|\s+|\w+|\W|\#.*\n")
 
         # 'token_list' is a list of tuples: (token_name, token_len)
         token_list = [ (token, len(bytearray(token, "utf-8"))) for token in p.findall(text)]
@@ -96,7 +97,7 @@ class MyLexer(QsciLexerCustom):
                 if token[0] == "*/":
                     multiline_comm_flag = False
             else:
-                if token[0] in ["array", "print", "abs", "goto", "include"]:
+                if token[0] in ["array", "print", "abs", "goto", "include","main"]:
                     # Red style
                     self.setStyling(token[1], 1)
                 elif token[0] in ["(", ")", "{", "}", "[", "]", "#"]:
@@ -105,6 +106,7 @@ class MyLexer(QsciLexerCustom):
                 elif token[0] == "/*":
                     multiline_comm_flag = True
                     self.setStyling(token[1], 3)
+
                 else:
                     # Default style
                     self.setStyling(token[1], 0)

@@ -29,11 +29,15 @@ class acciones ():
                 if(resutl!=None):
                     if(resutl.tipo=='goto'):                      
                         break
+                    elif(resutl.tipo=='exit'):
+                        break
             if(resutl!=None):
                 if(resutl.tipo=='goto'):
 
                     self.i=int(resutl.valor)
                     resutl=self.acciones(self.Raiz)
+                
+                    
                 # si el result dice que ve vengo de un goto
                 # paro el for y cambio el inicio del i
                 # y vuelvo a entrar al mismo metodo
@@ -55,7 +59,7 @@ class acciones ():
                     self.tabla_simbolos.update_symbol(izq)
                 else:
                     #existe un error en tiempo de ejecucion
-                    self.error+="existe un error en la operacion \n"
+                    self.error+="existe un error en la Asignacion \n"
             else:
                 der=self.acciones(der)
             
@@ -78,9 +82,13 @@ class acciones ():
         elif Raiz.produccion=='var':
             # solo el nombre de la variable
             nombre=Raiz.valor #obtengo el nombre de la variable
-            nuevo_simbolo=Simbolo(nombre,'sin','0','var','1','0')
-            self.tabla_simbolos.add_symbol(nuevo_simbolo)
-            resutl=nuevo_simbolo
+            buscar_simbolo=self.tabla_simbolos.get_symbol(nombre)
+            if(buscar_simbolo!=None):
+                resutl=buscar_simbolo
+            else:
+                nuevo_simbolo=Simbolo(nombre,'sin','0','var','1','0')
+                self.tabla_simbolos.add_symbol(nuevo_simbolo)
+                resutl=nuevo_simbolo
         elif Raiz.produccion == 'imprimir':
             resutl=self.acciones(Raiz.hijos[0])
             if resutl != None:
@@ -133,9 +141,45 @@ class acciones ():
             resutl = self.acciones_label(Raiz)
         elif Raiz.produccion == 'goto':
             resutl = self.acciones_goto(Raiz)
+        ############### ACCCIONES IF
+        elif Raiz.produccion == 'sentenciaif':
+            resutl = self.acciones_if(Raiz)
+        ############### ACCION EXIT
+        elif Raiz.produccion == 'exit':
+            resutl = self.accion_exit(Raiz)
 
         return resutl
- #-----------------------------------------------------------------------------COMANDO READ------------------------------------
+        
+
+ #-----------------------------------------------------------------------------SENTENCIA EXIT------------------------------------
+    def accion_exit(self,Raiz):
+        simbolo_exit=Simbolo('exit','exit','exit','exit','0','0')
+        return simbolo_exit
+
+ #-----------------------------------------------------------------------------SENTENCIA IF------------------------------------
+    def acciones_if(self, Raiz):
+        result = None
+        if(Raiz!=None):
+            if(Raiz.produccion=='sentenciaif'):
+                izq=Raiz.hijos[0] #hijo izq toma el valor de la expresion a evaluar
+                der=Raiz.hijos[1] #hijo derecho decide si usa el goto         
+                resultado_expresion_if=self.acciones(izq) # el var y esta en tablal de simblos / objeto simbolo
+                if(resultado_expresion_if.valor=='1'):
+                    
+                    label_goto=self.acciones_goto(der)
+                    if(label_goto!=None):
+                        result=label_goto
+                        return result
+
+                    
+                    else:
+                        self.error+="Error no existe el label del goto"
+                
+        
+        else:
+            self.error+='Error en e sentencia if'
+        return result
+ #-----------------------------------------------------------------------------COMANDO GOTO------------------------------------
     def acciones_label(self,Raiz):
         result =None
         nuevo_simbolo=Simbolo(Raiz.valor,'label',self.posLabel,'label','0','0')
@@ -145,26 +189,33 @@ class acciones ():
     def acciones_goto(self,Raiz):
         result=None
         label=Raiz.hijos[0].valor
+        
         pos=self.buscar_etiqueta(label)
-        nuevo_simbolo=Simbolo(label,'goto',pos,'goto','0','0')
-        result=nuevo_simbolo
+        if(pos!=None):
+            nuevo_simbolo=Simbolo(label,'goto',pos,'goto','0','0')
+            result=nuevo_simbolo
         return result
     
     
     def buscar_etiqueta(self, etiqueta):
         t=0
         pos=0
-       
+        result=None
         self.fin=len(self.lsen)
         for node in self.Raiz.hijos:
             pos+=1
             if(node.produccion=='label'):
                 if(node.valor==etiqueta):
+                    
                     t=pos
-                    break
-        return t
+                    return t                  
+            
+        
+        self.error+='Etiqueta '+etiqueta +' no encontrada\n'
+                   
+        return result
 
-
+ #-----------------------------------------------------------------------------COMANDO READ------------------------------------
     def acciones_read(self,Raiz):
         result=None
         if(Raiz.produccion=='read'):
@@ -201,11 +252,9 @@ class acciones ():
         result = None
         if Raiz.produccion == 'negativo':
             izq = Raiz.hijos[0]
-            if izq.tipo!='cadena':
-                result = self.acciones_negativo(izq)
-            else:
-                self.error+='No se puede convertir a negativo una cadena'
-                result=None
+            result = self.acciones_negativo(izq)
+            
+            
         elif Raiz.produccion=='var' :
             # busco el simbolo en la tabla de simbolos
             nombre=Raiz.valor #obtengo el nombre de la variable
@@ -416,64 +465,67 @@ class acciones ():
     def operaciones_relacionales(self,izq,der,op):
         result=None
         num = 0
-        if op == 'mayorque':
-            if izq.tipo=="entero" and der.tipo == "entero":     num=int(izq.valor)>int(der.valor)
-            elif izq.tipo=="entero" and der.tipo == "decimal":  num=int(izq.valor)>float(der.valor)
-            elif izq.tipo=="decimal" and der.tipo == "entero":  num=float(izq.valor)>int(der.valor)
-            elif izq.tipo=="decimal" and der.tipo == "decimal": num=float(izq.valor)>float(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "entero":   num=izq.valor>int(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "decimal":  num=izq.valor>float(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "cadena":   num=izq.valor>der.valor
+        if(izq!=None and der!=None):
+            if op == 'mayorque':
+                if izq.tipo=="entero" and der.tipo == "entero":     num=int(izq.valor)>int(der.valor)
+                elif izq.tipo=="entero" and der.tipo == "decimal":  num=int(izq.valor)>float(der.valor)
+                elif izq.tipo=="decimal" and der.tipo == "entero":  num=float(izq.valor)>int(der.valor)
+                elif izq.tipo=="decimal" and der.tipo == "decimal": num=float(izq.valor)>float(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "entero":   num=izq.valor>int(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "decimal":  num=izq.valor>float(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "cadena":   num=izq.valor>der.valor
+                    
+            elif op == 'menorque':
+                if izq.tipo=="entero" and der.tipo == "entero":     num=int(izq.valor) < int(der.valor)
+                elif izq.tipo=="entero" and der.tipo == "decimal":  num=int(izq.valor)<float(der.valor)
+                elif izq.tipo=="decimal" and der.tipo == "entero":  num=float(izq.valor)<int(der.valor)
+                elif izq.tipo=="decimal" and der.tipo == "decimal": num=float(izq.valor)<float(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "entero":   num=izq.valor<int(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "decimal":  num=izq.valor<float(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "cadena":   num=izq.valor<der.valor
+
+            elif op == 'igualque':
+                if izq.tipo=="entero" and der.tipo == "entero":     num=int(izq.valor)==int(der.valor)
+                elif izq.tipo=="entero" and der.tipo == "decimal":  num=int(izq.valor)==float(der.valor)
+                elif izq.tipo=="decimal" and der.tipo == "entero":  num=float(izq.valor)==int(der.valor)
+                elif izq.tipo=="decimal" and der.tipo == "decimal": num=float(izq.valor)==float(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "entero":   num=izq.valor==int(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "decimal":  num=izq.valor==float(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "cadena":   num=izq.valor==der.valor
+
+            elif op == 'noigual':
+                if izq.tipo=="entero" and der.tipo == "entero":     num=int(izq.valor)!=int(der.valor)
+                elif izq.tipo=="entero" and der.tipo == "decimal":  num=int(izq.valor)!=float(der.valor)
+                elif izq.tipo=="decimal" and der.tipo == "entero":  num=float(izq.valor)!=int(der.valor)
+                elif izq.tipo=="decimal" and der.tipo == "decimal": num=float(izq.valor)!=float(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "entero":   num=izq.valor!=int(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "decimal":  num=izq.valor!=float(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "cadena":   num=izq.valor!=der.valor
+
+            elif op == 'menorigualque':
+                if izq.tipo=="entero" and der.tipo == "entero":     num=int(izq.valor)<=int(der.valor)
+                elif izq.tipo=="entero" and der.tipo == "decimal":  num=int(izq.valor)<=float(der.valor)
+                elif izq.tipo=="decimal" and der.tipo == "entero":  num=float(izq.valor)<=int(der.valor)
+                elif izq.tipo=="decimal" and der.tipo == "decimal": num=float(izq.valor)<=float(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "entero":   num=izq.valor<=int(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "decimal":  num=izq.valor<=float(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "cadena":   num=izq.valor<=der.valor
+
+            if op == 'mayorigualque':
+                if izq.tipo=="entero" and der.tipo == "entero":     num=int(izq.valor)>=int(der.valor)
+                elif izq.tipo=="entero" and der.tipo == "decimal":  num=int(izq.valor)>=float(der.valor)
+                elif izq.tipo=="decimal" and der.tipo == "entero":  num=float(izq.valor)>=int(der.valor)
+                elif izq.tipo=="decimal" and der.tipo == "decimal": num=float(izq.valor)>=float(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "entero":   num=izq.valor>=int(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "decimal":  num=izq.valor>=float(der.valor)
+                elif izq.tipo=="cadena" and der.tipo == "cadena":   num=izq.valor>=der.valor
+                    
                 
-        elif op == 'menorque':
-            if izq.tipo=="entero" and der.tipo == "entero":     num=int(izq.valor)<int(der.valor)
-            elif izq.tipo=="entero" and der.tipo == "decimal":  num=int(izq.valor)<float(der.valor)
-            elif izq.tipo=="decimal" and der.tipo == "entero":  num=float(izq.valor)<int(der.valor)
-            elif izq.tipo=="decimal" and der.tipo == "decimal": num=float(izq.valor)<float(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "entero":   num=izq.valor<int(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "decimal":  num=izq.valor<float(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "cadena":   num=izq.valor<der.valor
-
-        elif op == 'igualque':
-            if izq.tipo=="entero" and der.tipo == "entero":     num=int(izq.valor)==int(der.valor)
-            elif izq.tipo=="entero" and der.tipo == "decimal":  num=int(izq.valor)==float(der.valor)
-            elif izq.tipo=="decimal" and der.tipo == "entero":  num=float(izq.valor)==int(der.valor)
-            elif izq.tipo=="decimal" and der.tipo == "decimal": num=float(izq.valor)==float(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "entero":   num=izq.valor==int(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "decimal":  num=izq.valor==float(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "cadena":   num=izq.valor==der.valor
-
-        elif op == 'noigual':
-            if izq.tipo=="entero" and der.tipo == "entero":     num=int(izq.valor)!=int(der.valor)
-            elif izq.tipo=="entero" and der.tipo == "decimal":  num=int(izq.valor)!=float(der.valor)
-            elif izq.tipo=="decimal" and der.tipo == "entero":  num=float(izq.valor)!=int(der.valor)
-            elif izq.tipo=="decimal" and der.tipo == "decimal": num=float(izq.valor)!=float(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "entero":   num=izq.valor!=int(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "decimal":  num=izq.valor!=float(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "cadena":   num=izq.valor!=der.valor
-
-        elif op == 'menorigualque':
-            if izq.tipo=="entero" and der.tipo == "entero":     num=int(izq.valor)<=int(der.valor)
-            elif izq.tipo=="entero" and der.tipo == "decimal":  num=int(izq.valor)<=float(der.valor)
-            elif izq.tipo=="decimal" and der.tipo == "entero":  num=float(izq.valor)<=int(der.valor)
-            elif izq.tipo=="decimal" and der.tipo == "decimal": num=float(izq.valor)<=float(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "entero":   num=izq.valor<=int(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "decimal":  num=izq.valor<=float(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "cadena":   num=izq.valor<=der.valor
-
-        if op == 'mayorigualque':
-            if izq.tipo=="entero" and der.tipo == "entero":     num=int(izq.valor)>=int(der.valor)
-            elif izq.tipo=="entero" and der.tipo == "decimal":  num=int(izq.valor)>=float(der.valor)
-            elif izq.tipo=="decimal" and der.tipo == "entero":  num=float(izq.valor)>=int(der.valor)
-            elif izq.tipo=="decimal" and der.tipo == "decimal": num=float(izq.valor)>=float(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "entero":   num=izq.valor>=int(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "decimal":  num=izq.valor>=float(der.valor)
-            elif izq.tipo=="cadena" and der.tipo == "cadena":   num=izq.valor>=der.valor
-                
-               
-        if num == True: num=1
-        else:           num=0
-        result=Simbolo('nada','bool',str(num),'var','0','1')        
+            if num == True: num=1
+            else:           num=0
+            result=Simbolo('nada','bool',str(num),'var','0','1')        
+        else:
+            self.error+="Error en operacion aritemetica"
         return result
  #-----------------------------------------------------------------------------EXPRESIONES logicas----------------------------
     def acciones_exp_log(self, Raiz):

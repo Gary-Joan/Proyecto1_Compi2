@@ -1,149 +1,187 @@
 digraph G {node[shape=box, style=filled, color=Gray95]; edge[color=blue];rankdir=UD 
 
-"0_lista_inst"->"1_label"
+"0_lista_inst"->"1_asignacion"
+"1_asignacion"->"2_variable"
+"2_variable"->"3_var"
 
-"0_lista_inst"->"2_asignacion"
-"2_asignacion"->"3_variable"
-"3_variable"->"4_var"
 
+"1_asignacion"->"4_entero"
 
-"2_asignacion"->"5_array"
 
+"0_lista_inst"->"5_asignacion"
+"5_asignacion"->"6_variable"
+"6_variable"->"7_var"
 
-"0_lista_inst"->"6_asignacion"
-"6_asignacion"->"7_variable"
-"7_variable"->"8_var"
 
-"7_variable"->"9_param_accesso"
-"9_param_accesso"->"10_entero"
+"5_asignacion"->"8_entero"
 
 
+"0_lista_inst"->"9_goto"
+"9_goto"->"10_label"
 
-"6_asignacion"->"11_exp_num"
-"11_exp_num"->"12_entero"
 
-"11_exp_num"->"13_multi"
+"0_lista_inst"->"11_label"
 
-"11_exp_num"->"14_entero"
+"0_lista_inst"->"12_imprimir"
+"12_imprimir"->"13_valorIMP"
+"13_valorIMP"->"14_variable"
+"14_variable"->"15_var"
 
 
 
-"0_lista_inst"->"15_asignacion"
-"15_asignacion"->"16_variable"
-"16_variable"->"17_var"
 
+"0_lista_inst"->"16_exit"
 
-"15_asignacion"->"18_entero"
+"0_lista_inst"->"17_label"
 
+"0_lista_inst"->"18_sentenciaif"
+"18_sentenciaif"->"19_exp_rel"
+"19_exp_rel"->"20_var"
 
-"0_lista_inst"->"19_goto"
-"19_goto"->"20_label"
+"19_exp_rel"->"21_mayorque"
 
+"19_exp_rel"->"22_entero"
 
-"0_lista_inst"->"21_asignacion"
-"21_asignacion"->"22_variable"
-"22_variable"->"23_var"
 
+"18_sentenciaif"->"23_goto"
+"23_goto"->"24_label"
 
-"21_asignacion"->"24_exp_num"
-"24_exp_num"->"25_var"
 
-"24_exp_num"->"26_suma"
 
-"24_exp_num"->"27_entero"
+"0_lista_inst"->"25_asignacion"
+"25_asignacion"->"26_variable"
+"26_variable"->"27_var"
 
 
+"25_asignacion"->"28_entero"
 
-"0_lista_inst"->"28_label"
 
-"0_lista_inst"->"29_asignacion"
-"29_asignacion"->"30_variable"
-"30_variable"->"31_var"
+"0_lista_inst"->"29_sentenciaif"
+"29_sentenciaif"->"30_exp_rel"
+"30_exp_rel"->"31_var"
 
+"30_exp_rel"->"32_igualque"
 
-"29_asignacion"->"32_exp_num"
-"32_exp_num"->"33_entero"
+"30_exp_rel"->"33_entero"
 
-"32_exp_num"->"34_suma"
 
-"32_exp_num"->"35_entero"
+"29_sentenciaif"->"34_goto"
+"34_goto"->"35_label"
 
 
 
-"0_lista_inst"->"36_imprimir"
-"36_imprimir"->"37_valorIMP"
-"37_valorIMP"->"38_variable"
-"38_variable"->"39_var"
+"0_lista_inst"->"36_asignacion"
+"36_asignacion"->"37_variable"
+"37_variable"->"38_var"
 
 
+"36_asignacion"->"39_exp_num"
+"39_exp_num"->"40_var"
 
+"39_exp_num"->"41_resta"
 
-"0_lista_inst"->"40_label"
+"39_exp_num"->"42_entero"
 
-"0_lista_inst"->"41_imprimir"
-"41_imprimir"->"42_valorIMP"
-"42_valorIMP"->"43_variable"
-"43_variable"->"44_var"
 
 
+"0_lista_inst"->"43_goto"
+"43_goto"->"44_label"
 
 
-"0_lista_inst"->"45_asignacion"
-"45_asignacion"->"46_variable"
-"46_variable"->"47_var"
+"0_lista_inst"->"45_label"
 
+"0_lista_inst"->"46_asignacion"
+"46_asignacion"->"47_variable"
+"47_variable"->"48_var"
 
-"45_asignacion"->"48_entero"
 
+"46_asignacion"->"49_exp_num"
+"49_exp_num"->"50_var"
 
-"0_lista_inst"->"49_goto"
-"49_goto"->"50_label"
+"49_exp_num"->"51_resta"
 
+"49_exp_num"->"52_entero"
 
-"0_lista_inst"->"51_asignacion"
-"51_asignacion"->"52_variable"
-"52_variable"->"53_var"
 
 
-"51_asignacion"->"54_entero"
+"0_lista_inst"->"53_asignacion"
+"53_asignacion"->"54_variable"
+"54_variable"->"55_var"
 
 
-"0_lista_inst"->"55_asignacion"
-"55_asignacion"->"56_variable"
-"56_variable"->"57_var"
+"53_asignacion"->"56_exp_num"
+"56_exp_num"->"57_var"
 
+"56_exp_num"->"58_suma"
 
-"55_asignacion"->"58_entero"
+"56_exp_num"->"59_entero"
 
 
-"0_lista_inst"->"59_asignacion"
-"59_asignacion"->"60_variable"
-"60_variable"->"61_var"
 
+"0_lista_inst"->"60_goto"
+"60_goto"->"61_label"
 
-"59_asignacion"->"62_entero"
 
+"0_lista_inst"->"62_label"
 
-"0_lista_inst"->"63_label"
+"0_lista_inst"->"63_asignacion"
+"63_asignacion"->"64_variable"
+"64_variable"->"65_var"
 
-"0_lista_inst"->"64_asignacion"
-"64_asignacion"->"65_variable"
-"65_variable"->"66_var"
 
+"63_asignacion"->"66_exp_num"
+"66_exp_num"->"67_var"
 
-"64_asignacion"->"67_entero"
+"66_exp_num"->"68_suma"
 
+"66_exp_num"->"69_entero"
 
-"0_lista_inst"->"68_imprimir"
-"68_imprimir"->"69_valorIMP"
-"69_valorIMP"->"70_variable"
-"70_variable"->"71_var"
 
-"70_variable"->"72_param_accesso"
-"72_param_accesso"->"73_entero"
 
+"0_lista_inst"->"70_asignacion"
+"70_asignacion"->"71_variable"
+"71_variable"->"72_var"
 
 
+"70_asignacion"->"73_exp_num"
+"73_exp_num"->"74_var"
+
+"73_exp_num"->"75_multi"
+
+"73_exp_num"->"76_var"
+
+
+
+"0_lista_inst"->"77_sentenciaif"
+"77_sentenciaif"->"78_exp_rel"
+"78_exp_rel"->"79_var"
+
+"78_exp_rel"->"80_igualque"
+
+"78_exp_rel"->"81_entero"
+
+
+"77_sentenciaif"->"82_goto"
+"82_goto"->"83_label"
+
+
+
+"0_lista_inst"->"84_asignacion"
+"84_asignacion"->"85_variable"
+"85_variable"->"86_var"
+
+
+"84_asignacion"->"87_exp_num"
+"87_exp_num"->"88_var"
+
+"87_exp_num"->"89_resta"
+
+"87_exp_num"->"90_entero"
+
+
+
+"0_lista_inst"->"91_goto"
+"91_goto"->"92_label"
 
 
 
