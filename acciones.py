@@ -1,6 +1,9 @@
 from tablasimbolo import Simbolo, tabladesimbolos
+
 import tkinter as tk
 from tkinter import StringVar
+import NodoArbol
+from ply.lex import LexToken, Lexer
 class acciones ():
     def __init__(self,Raiz):
         self.Raiz=Raiz
@@ -24,13 +27,16 @@ class acciones ():
             for j in range(self.i,self.fin):
                 self.posLabel+=1
                 node=self.lsen[j]
-                resutl=self.acciones(node)
-                
-                if(resutl!=None):
-                    if(resutl.tipo=='goto'):                      
-                        break
-                    elif(resutl.tipo=='exit'):
-                        break
+                if(isinstance(node,LexToken)):
+                    s=0
+                else:    
+                    resutl=self.acciones(node)
+                    
+                    if(resutl!=None):
+                        if(resutl.tipo=='goto'):                      
+                            break
+                        elif(resutl.tipo=='exit'):
+                            break
             if(resutl!=None):
                 if(resutl.tipo=='goto'):
 
@@ -98,9 +104,11 @@ class acciones ():
                     for char in cadena_array.simbolos:
                         char_simbolo=cadena_array.get_symbol(char)
                         cadenafinal+=char_simbolo.valor
-                    self.imprimir+=cadenafinal
+                    self.imprimir+=cadenafinal+"\n"         #imprimir cada dato del array
+                elif(resutl.tipo=='cadena'):
+                    print(resutl.valor)
                 else:    
-                    self.imprimir+=resutl.valor+"\n"
+                    self.imprimir+=resutl.valor
 
         elif Raiz.produccion == 'array':
             
@@ -124,6 +132,7 @@ class acciones ():
             resutl = self.acciones_exp_num(Raiz)
         
         elif Raiz.produccion == 'cadena':
+
             resutl = self.acciones_exp_num(Raiz)
         
         elif Raiz.produccion == 'var':
@@ -212,11 +221,14 @@ class acciones ():
         self.fin=len(self.lsen)
         for node in self.Raiz.hijos:
             pos+=1
-            if(node.produccion=='label'):
-                if(node.valor==etiqueta):
-                    
-                    t=pos
-                    return t                  
+            if(isinstance(node,LexToken)):
+                    s=0
+            else:  
+                if(node.produccion=='label'):
+                    if(node.valor==etiqueta):
+                        
+                        t=pos
+                        return t                  
             
         
         self.error+='Etiqueta '+etiqueta +' no encontrada\n'
@@ -227,30 +239,43 @@ class acciones ():
     def acciones_read(self,Raiz):
         result=None
         if(Raiz.produccion=='read'):
-            #valor_lectura = str(input("Ingrese un Valor "))
-            #nuevo_simbolo = Simbolo('sin','var',valor_lectura,'sin','1','1')
-            #result=nuevo_simbolo
-            master = tk.Tk()
-            tk.Label(master, 
-            text="Ingresar Valor ").grid(row=0)
+            while True:
+                num = input()
+                try:
+                    valor_lectura = int(num)
+                    nuevo_simbolo = Simbolo('sin','entero',str(valor_lectura),'entero','1','1')
+                    result=nuevo_simbolo
+                    break;
+                except ValueError:
+                    try:
+                        valor_lectura = float(num)
+                        nuevo_simbolo = Simbolo('sin','decimal',str(valor_lectura),'decimal','1','1')
+                        result=nuevo_simbolo
+                        break;
+                    except ValueError:
+                        print ("Ingreso un valor numerico valido")
             
-            v = StringVar()
-            e1 = tk.Entry(master, textvariable=v)
+            # master = tk.Tk()
+            # tk.Label(master, 
+            # text="Ingresar Valor ").grid(row=0)
+            
+            # v = StringVar()
+            # e1 = tk.Entry(master, textvariable=v)
             
 
-            e1.grid(row=0, column=1)
+            # e1.grid(row=0, column=1)
             
 
-            tk.Button(master, 
-            text='Ingresar ', 
-            command=master.quit).grid(row=2, 
-                                    column=0, 
-                                    sticky=tk.W, 
-                                    pady=4)
+            # tk.Button(master, 
+            # text='Ingresar ', 
+            # command=master.quit).grid(row=2, 
+            #                         column=0, 
+            #                         sticky=tk.W, 
+            #                         pady=4)
             
-            tk.mainloop()
-            nuevo_simbolo = Simbolo('sin','var',v.get(),'sin','1','1')
-            result=nuevo_simbolo           
+            # tk.mainloop()
+            # nuevo_simbolo = Simbolo('sin','var',v.get(),'sin','1','1')
+            # result=nuevo_simbolo           
         else:
             self.error+= 'Error en la lectura\n'
 
@@ -312,7 +337,10 @@ class acciones ():
         elif Raiz.produccion == 'entero':
             result = Simbolo('numero','entero',str(Raiz.valor),'var','1','0')
         elif Raiz.produccion == 'cadena':
-            result = Simbolo('cadena','cadena',str(Raiz.valor),'var','1','0')
+            if(Raiz.valor=='\\n'):
+                self.imprimir+="\n"
+            else:
+                result = Simbolo('cadena','cadena',str(Raiz.valor),'var','1','0')
         elif Raiz.produccion == 'decimal':
             result = Simbolo('decimal','decimal',str(Raiz.valor),'var','1','0')
         
@@ -331,7 +359,16 @@ class acciones ():
         elif Raiz.produccion=='var':
             # busco el simbolo en la tabla de simbolos
             nombre=Raiz.valor #obtengo el nombre de la variable
-            result=self.tabla_simbolos.get_symbol(nombre)
+            aux=self.tabla_simbolos.get_symbol(nombre)
+            if(aux!=None):
+                if(aux.tipo=='array'):
+                    self.error+="Error en "+ str(nombre)+ " no se puede imprimir un arreglo \n"
+                    result=None
+                else:
+                    result=self.tabla_simbolos.get_symbol(nombre)
+            else:
+                self.error+="Error no existe la variable "+str(nombre)+"\n"
+                result=None
         return result
 
     def operaciones_aritmeticas(self,izq,der,op):
@@ -713,32 +750,44 @@ class acciones ():
                 else:
                     # mas dimenciones  n 
                     tam=len(arbol_param_acceso.hijos)
+
                     for i in range(tam-1):
                         hijo=arbol_param_acceso.hijos[i]
                         id=self.acciones_exp_num(hijo)
-                        nuevo_simbolo=Simbolo(id.valor,'array','','array','1','0')
-                        nuevo_simbolo.valor=tabladesimbolos({})
-                        variable_arry.valor.add_symbol(nuevo_simbolo)
-                        variable_arry=nuevo_simbolo # corrimiento para la nueva dimension 
+                        dimension=variable_arry.valor.get_symbol(id.valor)
+                        if(dimension==None):
+                           
+                            nuevo_simbolo=Simbolo(id.valor,'array','','array','1','0')
+                            nuevo_simbolo.valor=tabladesimbolos({})
+                            variable_arry.valor.add_symbol(nuevo_simbolo)
+                            variable_arry=nuevo_simbolo # corrimiento para la nueva dimension 
+                        else:
+                           
+                            variable_arry = dimension
                     # ultimo hijo parametro y se guarda el valor 
                     hijo=arbol_param_acceso.hijos[tam-1]
                     id=self.acciones_exp_num(hijo)
 
                     if(valorP.tipo != 'cadena'):
                         nuevo_simbolo=Simbolo(id.valor,valorP.tipo,valorP.valor,'var','1','0')
-                        variable_arry.valor.add_symbol(nuevo_simbolo)
+                        if(variable_arry.tipo!='array'):
+                            self.error+= "Error en array el indice "+id.valor +" ya esta ocupado \n"
+                        else:
+                            variable_arry.valor.add_symbol(nuevo_simbolo)
                     else:
                         nuevo_simbolo=Simbolo(id.valor,'l_array','','array','1','0')
-                        nuevo_simbolo.valor=tabladesimbolos({})
-                        variable_arry.valor.add_symbol(nuevo_simbolo)
-                        variable_arry=nuevo_simbolo 
-                        if(valorP.tipo == 'cadena'):
-                            id_chr=0
-                            for i in valorP.valor:
-                                
-                                nuevo_simbolo=Simbolo(str(id_chr),'char',i,'var','1','1')
-                                variable_arry.valor.add_symbol(nuevo_simbolo)
-                                id_chr+=1
+                        if(variable_arry.tipo!='array'):
+                            self.error+= "Error en array el indice "+id.valor +" ya esta ocupado \n"
+                        else:
+                            nuevo_simbolo.valor=tabladesimbolos({})
+                            variable_arry.valor.add_symbol(nuevo_simbolo)
+                            variable_arry=nuevo_simbolo 
+                            if(valorP.tipo == 'cadena'):
+                                id_chr=0
+                                for i in valorP.valor:                                
+                                    nuevo_simbolo=Simbolo(str(id_chr),'char',i,'var','1','1')
+                                    variable_arry.valor.add_symbol(nuevo_simbolo)
+                                    id_chr+=1
 
                     #ingresar cadena de caracteres a un vector
                     
@@ -746,7 +795,7 @@ class acciones ():
 
 
             else:
-                self.error+= "error no es un vec\n"
+                self.error+= "error no es un vector la variable "+nombre_variable+"\n"
         else:
             self.error+="Error de asignacion en vec \n"
                       
@@ -769,7 +818,7 @@ class acciones ():
                     if ambito != None:
                         id_variable_simbolo=ambito
                     else:
-                        self.error+="no existe el acceso"
+                        self.error+="no existe el acceso al indice "+id_acceso.valor+"\n"
                         id_variable_simbolo=None
                         break
                 if(id_variable_simbolo!=None):

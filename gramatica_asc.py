@@ -29,7 +29,7 @@ def reporte_de_errores_lexicos():
 
 def reporte_de_errores_sintacticos():
     f = open("ReporteErroresSintacticos.txt", "w")
-    f.write(constantes.errores_lexico)
+    f.write(constantes.errores_sintantico)
     f.close()
     return ''
 
@@ -75,11 +75,14 @@ def imprimir_arbol(nodoRaiz, id):
     id_s=str(id)
     
     for hijo in nodoRaiz.hijos:
-        var=incrementar()
-        var_s=str(var)
-        cuerpo += "\""+id_s+"_"+ nodoRaiz.produccion + "\"->\""+var_s+"_"+hijo.produccion+"\""+"\n"
-        aux = imprimir_arbol(hijo, var)+"\n";  
-        cuerpo = cuerpo + aux
+        if(isinstance(hijo,LexToken) or isinstance(hijo, str)):
+                    s=0
+        else:  
+            var=incrementar()
+            var_s=str(var)
+            cuerpo += "\""+id_s+"_"+ nodoRaiz.produccion + "\"->\""+var_s+"_"+hijo.produccion+"\""+"\n"
+            aux = imprimir_arbol(hijo, var)+"\n";  
+            cuerpo = cuerpo + aux
     return cuerpo
 
 palabrasreservadas = {
@@ -144,7 +147,7 @@ t_IGUAL         = r'='
 t_LLAVEIZQ      = r'\['
 t_LLAVEDER      = r'\]'
 t_PUNTERO       = r'\&'
-t_PUNTOCOMA     = r';'
+t_PUNTOCOMA     = r'\;'
 t_SUMA          = r'\+'
 t_RESTA         = r'\-'
 t_MULTI         = r'\*'
@@ -228,7 +231,7 @@ def t_newline(t):
 
 
 def t_error(t):
-        a="Caracter desconocido en "+str(t.value[0])+ " en la linea "+str(t.lexer.lineno)+ ", columna "+str(t.lexer.lexpos  + 1)+"\n" 
+        a="Caracter desconocido - "+str(t.value[0])+ " - en la linea "+str(t.lexer.lineno)+ ", columna "+str(t.lexer.lexpos - t.lexer.linestart + 1)+"\n" 
         #print(a)
         constantes.errores_lexico+=str(a)
         
@@ -255,7 +258,9 @@ def p_init(t) :
     print("Todo correcto!")
     constantes.reporte_gramatical.append(str(t.slice[0])+" -> " +str(t.slice[1]))
     t[0] = t[1]
+
     Raiz = t[0]
+
     recorrer_arbol(t[0])
 
 def p_instruccion(t) :
@@ -570,19 +575,19 @@ def p_inst_goto(t):
 
 
 #ERRORES
+
 def p_error(p):
-     if p:
-
-          es="Error sintactico en token "+str(p.value)+" linea "+str(p.lexer.lineno)+" columna "+str(p.lexer.lexpos - p.lexer.linestart )+"\n"
-          constantes.errores_sintantico+=es
-         
-          # Just discard the token and tell the parser it's okay.
-          parser.errok()
-     else:
-          print("\n")
-
+    try:
+        error= "Error sintactico en token "+str(p.value)+" linea "+str(p.lexer.lineno)+" columna "+str(p.lexer.lexpos - p.lexer.linestart  )+"\n"
+        constantes.errores_sintantico+=str(error)
+        #print(error)
+    except:
+        error= "Error sintactico"
+        constantes.errores_sintactico+=str(error)
+        #print(error)
 
 import ply.yacc as yacc
+from ply.lex import LexToken
 parser = yacc.yacc()
 
 #f = open("./prueba.txt", "r")

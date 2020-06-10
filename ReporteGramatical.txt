@@ -4,22 +4,114 @@ listainstrucciones -> listainstrucciones
 lista -> inst_imprimir
 inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
 expresion -> variable
-variable -> variable
-var_arreglo -> LLAVEIZQ valorp LLAVEDER
-valorp -> CADENADOBLE
 variable -> VAR
+listainstrucciones -> listainstrucciones
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> CADENADOBLE
+listainstrucciones -> listainstrucciones
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> CADENADOBLE
 listainstrucciones -> listainstrucciones
 lista -> inst_asignacion
 inst_asignacion -> variable IGUAL expresion PUNTOCOMA
 expresion -> expresion_num
-expresion_num -> valorp
-valorp -> CADENADOBLE
-variable -> variable
-var_arreglo -> LLAVEIZQ valorp LLAVEDER
-valorp -> CADENADOBLE
+expresion_num -> valorp op valorp
+valorp -> VAR
+op -> SUMA
+valorp -> VAR
 variable -> VAR
-listainstrucciones -> lista
+listainstrucciones -> listainstrucciones
 lista -> inst_asignacion
 inst_asignacion -> variable IGUAL expresion PUNTOCOMA
-expresion -> inst_array
+expresion -> leer_valor
+variable -> VAR
+listainstrucciones -> listainstrucciones
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> CADENADOBLE
+listainstrucciones -> listainstrucciones
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> CADENADOBLE
+listainstrucciones -> listainstrucciones
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> CADENADOBLE
+listainstrucciones -> listainstrucciones
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> leer_valor
+variable -> VAR
+listainstrucciones -> listainstrucciones
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> CADENADOBLE
+listainstrucciones -> listainstrucciones
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> CADENADOBLE
+listainstrucciones -> listainstrucciones
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> CADENADOBLE
+listainstrucciones -> listainstrucciones
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> CADENA
+listainstrucciones -> listainstrucciones
+lista -> inst_unset
+listainstrucciones -> listainstrucciones
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> variable
+variable -> variable
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> ENTERO
+variable -> VAR
+listainstrucciones -> listainstrucciones
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> variable
+variable -> variable
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> ENTERO
+variable -> VAR
+listainstrucciones -> listainstrucciones
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> variable
+variable -> variable
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> ENTERO
+variable -> VAR
+listainstrucciones -> listainstrucciones
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> variable
+variable -> VAR
+listainstrucciones -> lista
+lista -> error
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> CADENADOBLE
 variable -> VAR

@@ -1,47 +1,121 @@
 digraph G {node[shape=box, style=filled, color=Gray95]; edge[color=blue];rankdir=UD 
 
-"0_lista_inst"->"1_asignacion"
-"1_asignacion"->"2_variable"
-"2_variable"->"3_var"
-
-
-"1_asignacion"->"4_array"
-
-
-"0_lista_inst"->"5_asignacion"
-"5_asignacion"->"6_variable"
-"6_variable"->"7_var"
-
-"6_variable"->"8_param_accesso"
-"8_param_accesso"->"9_cadena"
+"0_lista_inst"->"1_imprimir"
+"1_imprimir"->"2_valorIMP"
+"2_valorIMP"->"3_variable"
+"3_variable"->"4_var"
 
 
 
-"5_asignacion"->"10_cadena"
 
+"0_lista_inst"->"5_imprimir"
+"5_imprimir"->"6_valorIMP"
+"6_valorIMP"->"7_variable"
+"7_variable"->"8_var"
 
-"0_lista_inst"->"11_asignacion"
-"11_asignacion"->"12_variable"
-"12_variable"->"13_var"
-
-"12_variable"->"14_param_accesso"
-"14_param_accesso"->"15_cadena"
-
-"14_param_accesso"->"16_entero"
+"7_variable"->"9_param_accesso"
+"9_param_accesso"->"10_entero"
 
 
 
-"11_asignacion"->"17_cadena"
 
 
-"0_lista_inst"->"18_imprimir"
-"18_imprimir"->"19_valorIMP"
-"19_valorIMP"->"20_variable"
-"20_variable"->"21_var"
+"0_lista_inst"->"11_imprimir"
+"11_imprimir"->"12_valorIMP"
+"12_valorIMP"->"13_variable"
+"13_variable"->"14_var"
 
-"20_variable"->"22_param_accesso"
-"22_param_accesso"->"23_cadena"
+"13_variable"->"15_param_accesso"
+"15_param_accesso"->"16_entero"
 
+
+
+
+
+"0_lista_inst"->"17_imprimir"
+"17_imprimir"->"18_valorIMP"
+"18_valorIMP"->"19_variable"
+"19_variable"->"20_var"
+
+"19_variable"->"21_param_accesso"
+"21_param_accesso"->"22_entero"
+
+
+
+
+
+"0_lista_inst"->"23_unset"
+
+"0_lista_inst"->"24_imprimir"
+"24_imprimir"->"25_cadena"
+
+
+"0_lista_inst"->"26_imprimir"
+"26_imprimir"->"27_cadena"
+
+
+"0_lista_inst"->"28_imprimir"
+"28_imprimir"->"29_cadena"
+
+
+"0_lista_inst"->"30_imprimir"
+"30_imprimir"->"31_cadena"
+
+
+"0_lista_inst"->"32_asignacion"
+"32_asignacion"->"33_variable"
+"33_variable"->"34_var"
+
+
+"32_asignacion"->"35_read"
+
+
+"0_lista_inst"->"36_imprimir"
+"36_imprimir"->"37_cadena"
+
+
+"0_lista_inst"->"38_imprimir"
+"38_imprimir"->"39_cadena"
+
+
+"0_lista_inst"->"40_imprimir"
+"40_imprimir"->"41_cadena"
+
+
+"0_lista_inst"->"42_asignacion"
+"42_asignacion"->"43_variable"
+"43_variable"->"44_var"
+
+
+"42_asignacion"->"45_read"
+
+
+"0_lista_inst"->"46_asignacion"
+"46_asignacion"->"47_variable"
+"47_variable"->"48_var"
+
+
+"46_asignacion"->"49_exp_num"
+"49_exp_num"->"50_var"
+
+"49_exp_num"->"51_suma"
+
+"49_exp_num"->"52_var"
+
+
+
+"0_lista_inst"->"53_imprimir"
+"53_imprimir"->"54_cadena"
+
+
+"0_lista_inst"->"55_imprimir"
+"55_imprimir"->"56_cadena"
+
+
+"0_lista_inst"->"57_imprimir"
+"57_imprimir"->"58_valorIMP"
+"58_valorIMP"->"59_variable"
+"59_variable"->"60_var"
 
 
 

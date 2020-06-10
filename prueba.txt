@@ -1,5 +1,22 @@
-main: 
-$t1=array();
-$t1["nombre"] = "Carla";
-$t1["nombre"][4]='o';
-    print($t1["nombre"]);
+#ARCHIVO BASICO
+main:
+$t0 = "ARCHIVO BASICO");
+print($t0);
+print($t0[0]);
+print($t0[8]);
+print($t0[12]);
+unset($t0);
+print('\n');
+print("\n");
+#-------------ingreso de datos------------
+print("Ingresa un numero: ");
+print("\n");
+$t1 = read();
+print("\n");
+print("Ingreso un segundo numero: ");
+print("\n");
+$t2 = read();
+$t3 = $t1+$t2;
+print("La suma de los numeros es: ");
+print("\n");
+print($t3);

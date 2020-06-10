@@ -11,14 +11,14 @@ f = open("./prueba.txt", "r")
 input = f.read()
 
 Raiz = gr.parse(input)
-#print(Raiz.produccion)
+#print(Raiz)
 
 acciones_parser=acciones(Raiz)
 acciones_parser.ejecutar()
 gr.reportegramatica()
 print(acciones_parser.imprimir)
 print(acciones_parser.error)
-gr.reporte_de_errores_lexicos()
+print(gr.reporte_de_errores_lexicos())
 gr.reporte_de_errores_sintacticos()
 
 

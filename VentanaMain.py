@@ -9,6 +9,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 #from QcoderEditor import *
 from PyQt5.Qsci import *
+from PyQt5.QtPrintSupport import *
 from PyQt5.QtGui import QColor, QFont
 import re
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
@@ -116,8 +117,12 @@ class MyLexer(QsciLexerCustom):
 class Ui_MainWindow(QMainWindow):
     
     def __init__(self):
-       QMainWindow.__init__(self)
-       self.filename = ""
+        QMainWindow.__init__(self)
+        self.setupUi(self)
+        self.filename = ""
+    #def __init__(self):
+       #QMainWindow.__init__(self)
+       
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(992, 645)
