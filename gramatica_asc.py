@@ -12,18 +12,26 @@ import os
 from graphviz import render
 
 def reportegramatica():
-    #for item in reversed(constantes.reporte_gramatical):
-        #print(item)
+    archivo=""
+    for item in reversed(constantes.reporte_gramatical):
+        archivo+=item+"\n"
     #Aqui ponemos el valor de el diccionario de instruccion dentro de una archivo
+    f = open("ReporteGramatical.txt", "w")
+    f.write(archivo)
+    f.close()
 
-    return ''
 
 def reporte_de_errores_lexicos():
-    
-    return constantes.errores_lexico
+    f = open("ReporteErroresLexicos.txt", "w")
+    f.write(constantes.errores_lexico)
+    f.close()
+    return ''
 
 def reporte_de_errores_sintacticos():
-    return constantes.errores_sintantico
+    f = open("ReporteErroresSintacticos.txt", "w")
+    f.write(constantes.errores_lexico)
+    f.close()
+    return ''
 
 def incrementar():
     constantes.numero+=1
@@ -304,7 +312,7 @@ def p_variable_normal(t):
 
 def p_variable_arreglo_lista(t):
     'variable  : variable var_arreglo '
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[3].type))
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type))
     t[0] = t[1]
     if len(t[0].hijos)==1:
         hijo = crear_hoja('param_accesso','')
@@ -319,7 +327,7 @@ def p_variable_arreglo_lista(t):
 
 def p_variable_cochetes(t):
     'var_arreglo : LLAVEIZQ valorp LLAVEDER' 
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2]-type)+" "+str(t.slice[3].type)+" "+str(t.slice[4].type))
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type))
     t[0] = t[2]
    
 

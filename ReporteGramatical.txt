@@ -1,0 +1,25 @@
+inicio -> instruccion
+instruccion ->MAIN DOSPUNTOS
+listainstrucciones -> listainstrucciones
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> variable
+variable -> variable
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> CADENADOBLE
+variable -> VAR
+listainstrucciones -> listainstrucciones
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> CADENADOBLE
+variable -> variable
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> CADENADOBLE
+variable -> VAR
+listainstrucciones -> lista
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> inst_array
+variable -> VAR

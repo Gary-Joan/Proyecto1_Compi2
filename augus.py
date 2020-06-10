@@ -15,10 +15,10 @@ Raiz = gr.parse(input)
 
 acciones_parser=acciones(Raiz)
 acciones_parser.ejecutar()
-print(gr.reportegramatica())
+gr.reportegramatica()
 print(acciones_parser.imprimir)
 print(acciones_parser.error)
-print(gr.reporte_de_errores_lexicos())
+gr.reporte_de_errores_lexicos()
 gr.reporte_de_errores_sintacticos()
 
 

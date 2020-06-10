@@ -91,8 +91,16 @@ class acciones ():
                 resutl=nuevo_simbolo
         elif Raiz.produccion == 'imprimir':
             resutl=self.acciones(Raiz.hijos[0])
+            cadenafinal=""
             if resutl != None:
-                self.imprimir+=resutl.valor+"\n"
+                if(resutl.tipo=='l_array'):
+                    cadena_array=resutl.valor
+                    for char in cadena_array.simbolos:
+                        char_simbolo=cadena_array.get_symbol(char)
+                        cadenafinal+=char_simbolo.valor
+                    self.imprimir+=cadenafinal
+                else:    
+                    self.imprimir+=resutl.valor+"\n"
 
         elif Raiz.produccion == 'array':
             
@@ -173,11 +181,11 @@ class acciones ():
 
                     
                     else:
-                        self.error+="Error no existe el label del goto"
+                        self.error+="Error no existe el label del goto\n"
                 
         
         else:
-            self.error+='Error en e sentencia if'
+            self.error+='Error en e sentencia if\n'
         return result
  #-----------------------------------------------------------------------------COMANDO GOTO------------------------------------
     def acciones_label(self,Raiz):
@@ -525,7 +533,7 @@ class acciones ():
             else:           num=0
             result=Simbolo('nada','bool',str(num),'var','0','1')        
         else:
-            self.error+="Error en operacion aritemetica"
+            self.error+="Error en operacion aritemetica\n"
         return result
  #-----------------------------------------------------------------------------EXPRESIONES logicas----------------------------
     def acciones_exp_log(self, Raiz):
@@ -711,7 +719,7 @@ class acciones ():
                         nuevo_simbolo=Simbolo(id.valor,'array','','array','1','0')
                         nuevo_simbolo.valor=tabladesimbolos({})
                         variable_arry.valor.add_symbol(nuevo_simbolo)
-                        variable_arry=nuevo_simbolo # corrimeinto para la nueva dimencion 
+                        variable_arry=nuevo_simbolo # corrimiento para la nueva dimension 
                     # ultimo hijo parametro y se guarda el valor 
                     hijo=arbol_param_acceso.hijos[tam-1]
                     id=self.acciones_exp_num(hijo)
@@ -738,7 +746,7 @@ class acciones ():
 
 
             else:
-                self.error+= "error no es un vec"
+                self.error+= "error no es un vec\n"
         else:
             self.error+="Error de asignacion en vec \n"
                       

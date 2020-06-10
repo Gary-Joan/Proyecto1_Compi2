@@ -161,9 +161,14 @@ class Ui_MainWindow(QMainWindow):
         self.menuOpciones.setObjectName("menuOpciones")
         self.menuAyuda = QtWidgets.QMenu(self.menubar)
         self.menuAyuda.setObjectName("menuAyuda")
+        self.menuReportes = QtWidgets.QMenu(self.menubar)
+        self.menuReportes.setObjectName("menuReportes")
+
+
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
+
         MainWindow.setStatusBar(self.statusbar)
         self.actionNuevo = QtWidgets.QAction(MainWindow)
         self.actionNuevo.setObjectName("actionNuevo")
@@ -201,6 +206,22 @@ class Ui_MainWindow(QMainWindow):
         self.actionAcerca_De.setObjectName("actionAcerca_De")
         self.actionEjecutar_Descedente = QtWidgets.QAction(MainWindow)
         self.actionEjecutar_Descedente.setObjectName("actionEjecutar_Descedente")
+
+
+
+        self.actionReporteAST = QtWidgets.QAction(MainWindow)
+        self.actionReporteAST.setObjectName("actionReporteAST")
+        self.actionLexico = QtWidgets.QAction(MainWindow)
+        self.actionLexico.setObjectName("actionLexico")
+        self.actionSintactico = QtWidgets.QAction(MainWindow)
+        self.actionSintactico.setObjectName("actionSintactico")
+        self.actionGramatical = QtWidgets.QAction(MainWindow)
+        self.actionGramatical.setObjectName("actionGramatical")
+
+        self.menuReportes.addAction(self.actionReporteAST)
+        self.menuReportes.addAction(self.actionLexico)
+        self.menuReportes.addAction(self.actionSintactico)
+        self.menuReportes.addAction(self.actionGramatical)
         self.menuArchivo.addAction(self.actionNuevo)
         self.menuArchivo.addAction(self.actionAbrir)
         self.menuArchivo.addAction(self.actionGuardar)
@@ -223,7 +244,10 @@ class Ui_MainWindow(QMainWindow):
         self.menubar.addAction(self.menuEditar.menuAction())
         self.menubar.addAction(self.menuEjecutar.menuAction())
         self.menubar.addAction(self.menuOpciones.menuAction())
+        self.menubar.addAction(self.menuReportes.menuAction())
         self.menubar.addAction(self.menuAyuda.menuAction())
+
+
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -295,6 +319,7 @@ class Ui_MainWindow(QMainWindow):
         self.menuEjecutar_Ascedente.setTitle(_translate("MainWindow", "Ejecutar Ascedente"))
         self.menuOpciones.setTitle(_translate("MainWindow", "Opciones"))
         self.menuAyuda.setTitle(_translate("MainWindow", "Ayuda"))
+        self.menuReportes.setTitle(_translate("MainWindow", "Reportes"))
         self.actionNuevo.setText(_translate("MainWindow", "Nuevo"))
         self.actionAbrir.setText(_translate("MainWindow", "Abrir"))
         self.actionGuardar.setText(_translate("MainWindow", "Guardar"))
@@ -313,6 +338,11 @@ class Ui_MainWindow(QMainWindow):
         self.actionAyuda.setText(_translate("MainWindow", "Ayuda"))
         self.actionAcerca_De.setText(_translate("MainWindow", "Acerca De.."))
         self.actionEjecutar_Descedente.setText(_translate("MainWindow", "Ejecutar Descedente"))
+
+        self.actionReporteAST.setText(_translate("MainWindow", "ReporteAST"))
+        self.actionLexico.setText(_translate("MainWindow", "Lexico"))
+        self.actionSintactico.setText(_translate("MainWindow", "Sintactico"))
+        self.actionGramatical.setText(_translate("MainWindow", "Gramatical"))
 
 
 
