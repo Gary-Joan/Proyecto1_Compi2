@@ -1,5 +1,5 @@
 
-import gramatica_asc as gr
+import gramatica_desc as gr
 import tablasimbolo as TS
 
 from acciones import acciones
@@ -9,7 +9,7 @@ from acciones import acciones
 import sys
 sys.setrecursionlimit(10**6)
 
-f = open("./prueba.txt", "r")
+f = open("./gramatica_descendente/prueba.txt", "r")
 input = f.read()
 
 Raiz = gr.parse(input)

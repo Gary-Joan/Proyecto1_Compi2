@@ -1,0 +1,17 @@
+main:
+	$s0=10;
+	$n1 = 0;
+	$n2 = 1;
+	$s1 = 1;
+	$i0 = 1;
+	print($n1);
+	
+	fibonacci:
+	if($i0>$s0) goto fin:
+		$s1 = $n1 + $n2;
+		$n1 = $n2;
+		$m2 = $s1;
+		$i0 = $i0+1;
+		
+fin:
+exit;		

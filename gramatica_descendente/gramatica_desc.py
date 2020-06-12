@@ -4,8 +4,6 @@
 #
 # Gramatica para proyecto 1 Augus
 # -----------------------------------------------------------------------------
-
-
 from NodoArbol import NodoArbol 
 import constantes
 import os
@@ -77,8 +75,6 @@ def reporte_de_errores_sintacticos():
     f.close()
     pdf.close()
 
-
-
 def incrementar():
     constantes.numero+=1
     return constantes.numero
@@ -97,12 +93,12 @@ def recorrer_arbol(nodoRaiz):
      
      #  recorrer_arbol(nodo)
     graficar_arbol(imprimir_arbol(nodoRaiz,0))
-    render('dot', 'png', 'AST_asc.dot') 
+    render('dot', 'png', 'AST_Desc.dot') 
     #print(imprimir_arbol(nodoRaiz,0))
 
 def graficar_arbol(arbol):
     try:
-        file = open("./AST_asc.dot", "w")
+        file = open("AST_Desc.dot", "w")
         file.write("digraph G {node[shape=box, style=filled, color=Gray95]; edge[color=blue];rankdir=UD \n" + os.linesep)
 
         file.write(arbol)
@@ -279,10 +275,11 @@ def t_newline(t):
 
 
 def t_error(t):
-        a="Caracter desconocido - "+str(t.value[0])+ " - en la linea "+str(t.lexer.lineno)+ ", columna "+str(t.lexer.lexpos  + 1)+"\n" 
+        a="Caracter desconocido - "+str(t.value[0])+ " - en la linea "+str(t.lexer.lineno)+ ", columna "+str(t.lexer.lexpos - t.lexer.linestart + 1)+"\n" 
         #print(a)
         constantes.errores_lexico+=str(a)
-    
+        print(a)
+        
         t.lexer.skip(1)
                          
 # Construyendo el analizador léxico
@@ -304,31 +301,46 @@ precedence = (
 def p_init(t) :
     'inicio            : instruccion'
     print("Todo correcto!")
-    constantes.reporte_gramatical.append(str(t.slice[0])+" -> " +str(t.slice[1])+ "\n{ t[0]= t[1] }")
+    constantes.reporte_gramatical.append(str(t.slice[0])+" -> " +str(t.slice[1]))
     t[0] = t[1]
 
     Raiz = t[0]
 
-    recorrer_arbol(t[0])
+    #recorrer_arbol(t[0])
 
 def p_instruccion(t) :
     '''instruccion      : MAIN DOSPUNTOS listainstrucciones '''
-    constantes.reporte_gramatical.append("instruccion ->"+str(t.slice[1].type)+" "+str(t.slice[2].type)+str(t.slice[3].type)+ "\n{ t[0]=t[3] }")
+    constantes.reporte_gramatical.append("instruccion ->"+str(t.slice[1].type)+" "+str(t.slice[2].type))
     t[0]=t[3]
 
 def p_listainstrucciones(t):
-    'listainstrucciones : listainstrucciones lista'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0]=t[1]; T[0]=agregar_hijo(t[0],t[2]) } " )
+    'listainstrucciones : lista listainstrucciones_prima'
+    #constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type) )
+    
+    #t[0] = t[1]
+    #t[0] = agregar_hijo(t[0],t[2])
+def p_listainstrucciones_prima(t):
+    'listainstrucciones_prima : lista listainstrucciones_prima'
+    t[0]=[t[-1]]
+    t[0].append(t[1])
+    print(t[0])
+  
+  
+
    
-    t[0] = t[1]
-    t[0] = agregar_hijo(t[0],t[2])
 
+   
 def p_lista_listainstrucciones(t):
-    'listainstrucciones : lista'
-    constantes.reporte_gramatical.append(str(t.slice[0].type+" -> "+t.slice[1].type)+"\n{ t[0] = crear_hoja('lista_inst',''); t[0] = agregar_hijo(t[0],t[1]) }")
+    'listainstrucciones_prima : '
+    t[0]=t[-3]
+  
 
-    t[0] = crear_hoja('lista_inst','')
-    t[0] = agregar_hijo(t[0],t[1])
+
+   
+    #constantes.reporte_gramatical.append(str(t.slice[0].type+" -> "+t.slice[1].type))
+
+    #t[0] = crear_hoja('lista_inst','')
+    #t[0] = agregar_hijo(t[0],t[1])
 
    
 def p_lista(t):
@@ -341,76 +353,86 @@ def p_lista(t):
                 | inst_exit
                 | error
                 '''
-    constantes.reporte_gramatical.append(str(t.slice[0].type+" -> "+str(t.slice[1].type))+"\n{t[0]=t[1] }")
+    # constantes.reporte_gramatical.append(str(t.slice[0].type+" -> "+str(t.slice[1].type)))
     
     t[0]=t[1]
+    
 
 def p_inst_asignacion(t):
     '''inst_asignacion : variable IGUAL expresion PUNTOCOMA 
                           '''
-    # print(t[3])
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type)+ " "+str(t.slice[4].type)+"\n{ t[0] = crear_hoja('asignacion',''); t[0] = agregar_hijo(t[0],t[1]);  t[0] = agregar_hijo(t[0],t[3])}")
-    t[0] = crear_hoja('asignacion','')
-    t[0] = agregar_hijo(t[0],t[1])
-    t[0] = agregar_hijo(t[0],t[3])
+    t[0]=('asig',t[1],t[3])
+  
+    #constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type)+ " "+str(t.slice[4].type))
+    #t[0] = crear_hoja('asignacion','')
+    #t[0] = agregar_hijo(t[0],t[1])
+    #t[0] = agregar_hijo(t[0],t[3])
     #t[0] = Asignacion(t[1], t[3])
 
 def p_variable_normal(t):
-    'variable : VAR'
-   #  t[0] = ('var',t[1])
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0] = crear_hoja('variable',''); hijo = crear_hoja('var', t[1]); t[0] = agregar_hijo(t[0],hijo) }")
-    t[0] = crear_hoja('variable','')
-    hijo = crear_hoja('var', t[1])
-    t[0] = agregar_hijo(t[0],hijo)
+    'variable : VAR variable_prima'
+    t[0] = ('var',t[1])
+    
+    #constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type))
+    #t[0] = crear_hoja('variable','')
+    #hijo = crear_hoja('var', t[1])
+    #t[0] = agregar_hijo(t[0],hijo)
+def p_variable_prima(t):
+    'variable_prima : var_arreglo variable_prima' 
+   
 
 def p_variable_arreglo_lista(t):
-    'variable  : variable var_arreglo '
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0] = t[1] }")
-    t[0] = t[1]
-    if len(t[0].hijos)==1:
-        hijo = crear_hoja('param_accesso','')
-        hijos = t[2]
-        hijo = agregar_hijo(hijo,hijos)
-        t[0] = agregar_hijo(t[0],hijo)
-    else:
-        hijo=t[0].hijos[1]
-        hijos = t[2]
-        hijo = agregar_hijo(hijo,hijos)
+    'variable_prima  : '
+
+    # constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type))
+    # t[0] = t[1]
+    # if len(t[0].hijos)==1:
+    #     hijo = crear_hoja('param_accesso','')
+    #     hijos = t[2]
+    #     hijo = agregar_hijo(hijo,hijos)
+    #     t[0] = agregar_hijo(t[0],hijo)
+    # else:
+    #     hijo=t[0].hijos[1]
+    #     hijos = t[2]
+    #     hijo = agregar_hijo(hijo,hijos)
     
 
 def p_variable_cochetes(t):
     'var_arreglo : LLAVEIZQ valorp LLAVEDER' 
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type)+"\n{t[0]=t[2] }")
-    t[0] = t[2]
+   
+    # constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type))
+    # t[0] = t[2]
    
 
 def p_inst_asignacion_numerica(t):
     'expresion : expresion_num'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0]= t[1] }")
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type))
     t[0]= t[1]
 
 def p_inst_asignacion_conversion(t):
     'expresion : conversion'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0]= t[1] }")
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type))
     t[0] = t[1]
 def p_inst_asignacion_read(t):
     'expresion : leer_valor'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0]= t[1] }")
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type))
     t[0] = t[1]
 
 def p_inst_asignacion_arreglo(t):
     'expresion : variable'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0]= t[1] }")
-    t[0] = crear_hoja('valorIMP','')
-    t[0] = agregar_hijo(t[0],t[1])
+   
+    # constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type))
+    # t[0] = crear_hoja('valorIMP','')
+    # t[0] = agregar_hijo(t[0],t[1])
+    t[0]=('variable',t[1])
 def p_inst_array(t):
     'expresion : inst_array'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0]= t[1] }")
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type))
     t[0] = t[1]
 
 def p_expresion_numerica_binaria(t):
     'expresion_num : valorp op valorp'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type)+"\n{t[0]=crear_hoja(t[2].valor,'');t[0]=agregar_hijo(t[0],t[1]);t[0]=agregar_hijo(t[0],t[2]);t[0]=agregar_hijo(t[0],t[3]) }")
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type))
                         
 
     t[0]=crear_hoja(t[2].valor,'')
@@ -439,53 +461,53 @@ def p_op(t):
           | XORBIT   
     ''' 
     #constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)) 
-    if   t[1] == '+':     
-             t[0]= crear_hoja('suma','exp_num')
-    elif t[1] == '-':   
-            t[0]= crear_hoja('resta','exp_num')
-    elif t[1] == '*':    
-            t[0]= crear_hoja('multi','exp_num')
-    elif t[1] == '/':   
-            t[0]= crear_hoja('div','exp_num')
-    elif t[1] == '%':    
-            t[0]= crear_hoja('residuo','exp_num')
-    elif t[1] == '>'  :
-            t[0]= crear_hoja('mayorque','exp_rel')
-    elif t[1] == '<'  :
-            t[0]= crear_hoja('menorque','exp_rel')
-    elif t[1] == '==' : 
-            t[0]= crear_hoja('igualque','exp_rel')
-    elif t[1] == '!=' :
-            t[0]= crear_hoja('noigual','exp_rel')
-    elif t[1] == '>=' : 
-            t[0]= crear_hoja('mayorigualque','exp_rel')
-    elif t[1] == '<=' :
-            t[0]= crear_hoja('menorigualque','exp_rel')
-    elif t[1] == '&&' :
-            t[0]= crear_hoja('and','exp_log')
-    elif t[1] == '||' :
-            t[0]= crear_hoja('or','exp_log')
-    elif t[1] == 'xor' : 
-            t[0]= crear_hoja('xor','exp_log')
-    elif t[1] == '~' : 
-            t[0]= crear_hoja('notbit','exp_bit_bit')            
-    elif t[1] == '&' : 
-            t[0]= crear_hoja('andbit','exp_bit_bit')           
-    elif t[1] == '|' : 
-            t[0]= crear_hoja('orbit','exp_bit_bit')
-    elif t[1] == '^' : 
-            t[0]= crear_hoja('xorbit','exp_bit_bit')  
+    # if   t[1] == '+':     
+    #          t[0]= crear_hoja('suma','exp_num')
+    # elif t[1] == '-':   
+    #         t[0]= crear_hoja('resta','exp_num')
+    # elif t[1] == '*':    
+    #         t[0]= crear_hoja('multi','exp_num')
+    # elif t[1] == '/':   
+    #         t[0]= crear_hoja('div','exp_num')
+    # elif t[1] == '%':    
+    #         t[0]= crear_hoja('residuo','exp_num')
+    # elif t[1] == '>'  :
+    #         t[0]= crear_hoja('mayorque','exp_rel')
+    # elif t[1] == '<'  :
+    #         t[0]= crear_hoja('menorque','exp_rel')
+    # elif t[1] == '==' : 
+    #         t[0]= crear_hoja('igualque','exp_rel')
+    # elif t[1] == '!=' :
+    #         t[0]= crear_hoja('noigual','exp_rel')
+    # elif t[1] == '>=' : 
+    #         t[0]= crear_hoja('mayorigualque','exp_rel')
+    # elif t[1] == '<=' :
+    #         t[0]= crear_hoja('menorigualque','exp_rel')
+    # elif t[1] == '&&' :
+    #         t[0]= crear_hoja('and','exp_log')
+    # elif t[1] == '||' :
+    #         t[0]= crear_hoja('or','exp_log')
+    # elif t[1] == 'xor' : 
+    #         t[0]= crear_hoja('xor','exp_log')
+    # elif t[1] == '~' : 
+    #         t[0]= crear_hoja('notbit','exp_bit_bit')            
+    # elif t[1] == '&' : 
+    #         t[0]= crear_hoja('andbit','exp_bit_bit')           
+    # elif t[1] == '|' : 
+    #         t[0]= crear_hoja('orbit','exp_bit_bit')
+    # elif t[1] == '^' : 
+    #         t[0]= crear_hoja('xorbit','exp_bit_bit')  
 
 def p_expresion_unaria_negativo(t):
     'expresion_num : RESTA valorp %prec UMENOS'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+"\n{ t[0] = crear_hoja('negativo','');t[0] = agregar_hijo(t[0],t[2]) }")
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type))
     t[0] = crear_hoja('negativo','')
     t[0] = agregar_hijo(t[0],t[2])
 
 
 def p_expresion_absoluto(t):
     'expresion_num : ABSOLUTO PARIZQ valorp PARDER '
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2]-type)+" "+str(t.slice[3].type)+" "+str(t.slice[4].type)+"\n{t[0] = crear_hoja('abs','');t[0] = agregar_hijo(t[0],t[3]) }")
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2]-type)+" "+str(t.slice[3].type)+" "+str(t.slice[4].type))
     #print(t[3])
    # t[0] = ExpresionAbsoluto(t[3])
     t[0] = crear_hoja('abs','')
@@ -493,20 +515,22 @@ def p_expresion_absoluto(t):
    
 def p_expresion_unaria(t):
     'expresion_num :  valorp'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{ t[0]=t[1]}") 
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)) 
 
     t[0]=t[1]
+   
 def p_valorp_numerico(t):
     '''valorp : DECIMAL
     '''
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0]=crear_hoja('decimal',t[1]) }") 
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)) 
     t[0]=crear_hoja('decimal',t[1])
     #t[0] = ExpresionNumero(t[1])
 def p_valorp_numerico_entero(t):
     '''valorp : ENTERO
     '''
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0]=crear_hoja('entero',t[1]) }") 
-    t[0]=crear_hoja('entero',t[1])
+    # constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)) 
+    # t[0]=crear_hoja('entero',t[1])
+    t[0] = ('entero',t[1])
 
 
 def p_valorp_cadena(t):
@@ -515,24 +539,26 @@ def p_valorp_cadena(t):
                 | CADENADOBLE
                 
     '''
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0] =crear_hoja('cadena',t[1]) }") 
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)) 
     t[0] =crear_hoja('cadena',t[1])
     #t[0] = ExpresionCadenaComillas(t[1])
 def p_valorp_variable(t):
     'valorp : VAR'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0] = crear_hoja('var',t[1]) }") 
-   # t[0] = ExpresionID(t[1])
-    t[0] = crear_hoja('var',t[1])
+#     constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)) 
+#    # t[0] = ExpresionID(t[1])
+#     t[0] = crear_hoja('var',t[1])
+    t[0]=('var',t[1])
+
 
 def p_valor_identificador_label(t):
     'valorp : ID'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0] = crear_hoja('etiqueta',t[1]) }") 
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)) 
     t[0] = crear_hoja('etiqueta',t[1])
     
 
 def p_expresion_relacional_not(t):
     'expresion_num : NOT valorp'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+"\n{t[0] = crear_hoja('not_log','');t[0] = agregar_hijo(t[0],t[2]) }") 
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)) 
     #t[0] = ExpresionLogicaNot(t[2], OPERACION_LOGICA.NOT)
     t[0] = crear_hoja('not_log','')
     t[0] = agregar_hijo(t[0],t[2])
@@ -540,7 +566,7 @@ def p_expresion_relacional_not(t):
 def p_conversion(t):
     '''conversion : PARIZQ valor_conversion PARDER VAR
     '''
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0] = crear_hoja('conversion','');t[0] = agregar_hijo(t[0],t[2]); }") 
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)) 
     t[0] = crear_hoja('conversion','')
     t[0] = agregar_hijo(t[0],t[2])
 
@@ -574,32 +600,31 @@ def p_etiqueta(t):
 
 def p_inst_unset(t):
     'inst_unset : UNSET PARIZQ VAR PARDER PUNTOCOMA'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+"\n{t[0] = crear_hoja('unset','');t[0] = agregar_hijo(t[0],t[3]) }")
-    
     t[0] = crear_hoja('unset','')
     t[0] = agregar_hijo(t[0],t[3])
 
 def p_inst_exit(t):
     'inst_exit : EXIT PUNTOCOMA'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+"\n{t[0] = crear_hoja('exit','') }")
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type))
     
     t[0] = crear_hoja('exit','')
 
 def p_array(t):
     'inst_array : ARRAY PARIZQ PARDER'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+str(t.slice[3].type)+"\n{t[0] = crear_hoja('exit','') }")
     t[0] = crear_hoja('array','')  
 
 def p_inst_imprimir(t):
     'inst_imprimir       : IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type)+" "+str(t.slice[4].type)+" "+str(t.slice[5].type)+"\n{t[0] =crear_hoja('imprimir','');t[0] = agregar_hijo(t[0],t[3]) }")
-    #t[0] = Imprimir(t[3])
-    t[0] =crear_hoja('imprimir','')
-    t[0] = agregar_hijo(t[0],t[3])
+    # constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type)+" "+str(t.slice[4].type)+" "+str(t.slice[5].type))
+    # #t[0] = Imprimir(t[3])
+    # t[0] =crear_hoja('imprimir','')
+    # t[0] = agregar_hijo(t[0],t[3])
+    t[0] =('imprimir',t[3])
+
     
 def p_inst_if(t):
     'inst_if : IF PARIZQ expresion PARDER GOTO ID PUNTOCOMA'
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+""+str(t.slice[2].type)+" "+str(t.slice[3].type)+" "+str(t.slice[4].type)+str(t.slice[5].type)+" "+str(t.slice[6].type)+" "+str(t.slice[7].type)+"\n{t[0] = crear_hoja('sentenciaif','') }")
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+""+str(t.slice[2].type)+" "+str(t.slice[3].type)+" "+str(t.slice[4].type)+str(t.slice[5].type)+" "+str(t.slice[6].type)+" "+str(t.slice[7].type))
     #print(t[1],t[2],t[3],t[4],t[5],t[6], t[7])
     t[0] = crear_hoja('sentenciaif','')
     t[0] = agregar_hijo(t[0],t[3])
@@ -610,10 +635,10 @@ def p_inst_if(t):
 
 def p_inst_goto(t):
     'inst_goto : GOTO ID PUNTOCOMA'
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type)) 
     #print(t[1],t[2])
     t[0] = crear_hoja('goto','')
     hijo = crear_hoja('label',t[2])
-    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type)+"\n { t[0] = crear_hoja('goto',''); hijo = crear_hoja('label',t[2]); t[0] = agregar_hijo(t[0],hijo) }") 
     t[0] = agregar_hijo(t[0],hijo)
 
 
@@ -641,10 +666,10 @@ import ply.yacc as yacc
 from ply.lex import LexToken
 parser = yacc.yacc()
 
-#f = open("./prueba.txt", "r")
-#input = f.read()
+f = open("./gramatica_descendente/prueba.txt", "r")
+input = f.read()
 
-#parser.parse(input)
+parser.parse(input)
 
 
 def parse(input) :

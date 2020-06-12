@@ -13,7 +13,7 @@ from PyQt5.QtPrintSupport import *
 from PyQt5.QtGui import QColor, QFont
 import re
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
-
+import webbrowser as wb
 import gramatica_asc as gr
 import tablasimbolo as TS
 
@@ -77,7 +77,7 @@ class MyLexer(QsciLexerCustom):
 
         # 3. Tokenize the text
         # ---------------------
-        p = re.compile(r"[*]\/|\/[*]|\s+|\w+|\W|\#.*\n")
+        p = re.compile(r"[*]\/|\/[*]|\s+|\w+|\W")
 
         # 'token_list' is a list of tuples: (token_name, token_len)
         token_list = [ (token, len(bytearray(token, "utf-8"))) for token in p.findall(text)]
@@ -98,15 +98,12 @@ class MyLexer(QsciLexerCustom):
                 if token[0] == "*/":
                     multiline_comm_flag = False
             else:
-                if token[0] in ["array", "print", "abs", "goto", "include","main"]:
+                if token[0] in ["array", "print", "abs", "goto", "include","main","exit","unset"]:
                     # Red style
                     self.setStyling(token[1], 1)
-                elif token[0] in ["(", ")", "{", "}", "[", "]", "#"]:
+                elif token[0] in ["(", ")", "{", "}", "[", "]"]:
                     # Blue style
                     self.setStyling(token[1], 2)
-                elif token[0] == "/*":
-                    multiline_comm_flag = True
-                    self.setStyling(token[1], 3)
 
                 else:
                     # Default style
@@ -259,6 +256,12 @@ class Ui_MainWindow(QMainWindow):
 
         self.btn_ejecutar.clicked.connect(lambda: self.ejecutar())
         self.actionAbrir.triggered.connect(lambda :self.open())
+        self.actionGuardar.triggered.connect(lambda :self.save())
+        self.actionReporteAST.triggered.connect(lambda :self.action_abrir_imagen())
+        self.actionGramatical.triggered.connect(lambda :self.action_abrir_reporte_Gramatical())
+        self.actionSintactico.triggered.connect(lambda :self.action_abrir_reporte_Sintactico())
+        self.actionLexico.triggered.connect(lambda :self.action_abrir_reporte_lexico())
+
 
         self.__myFont = QFont()
         self.__myFont.setPointSize(8)
@@ -360,13 +363,18 @@ class Ui_MainWindow(QMainWindow):
         #print(Raiz.produccion)
 
         acciones_parser=acciones(Raiz)
-        acciones_parser.ejecutar()
+        acciones_parser.ejecutar(self.plainTextEdit)
+        gr.reporte_de_errores_sintacticos()
+        gr.reportegramatica()
+        gr.reporte_de_errores_lexicos()
+        self.plainTextEdit.appendPlainText(acciones_parser.error)
         #print(acciones_parser.imprimir)
-        self.plainTextEdit.setPlainText(acciones_parser.imprimir)
+        #self.plainTextEdit.setPlainText(acciones_parser.imprimir)
+        #self.plainTextEdit.appendPlainText("PRUEBA APE")
         self.plainTextEdit_2.setHtml (acciones_parser.imprimir_tabla_simbolos())
         
     def open(self):
-        self.filename = QFileDialog.getOpenFileName(self, 'Open File', ".", "(*.txt)")
+        self.filename = QFileDialog.getOpenFileName(self, 'Open File', ".", "(*.*)")
 
         if self.filename[0]:
             # Read a file
@@ -374,20 +382,28 @@ class Ui_MainWindow(QMainWindow):
                self.__editor.setText(in_file.read())
     
     def save(self):
+        # S_File will get the directory path and extension.
+            S__File = QtWidgets.QFileDialog.getSaveFileName(None,'SaveTextFile','/', "Text Files (*.txt)")
 
-        # Only open dialog if there is no filename yet
-        if not self.filename:
-          self.filename = QFileDialog.getSaveFileName(self, 'Save File')
+            # This will let you access the test in your QTextEdit
+            Text = self.__editor.text()
 
-        # Append extension if not there yet
-        if not self.filename.endswith(".txt"):
-          self.filename += ".txt"
+            # This will prevent you from an error if pressed cancel on file dialog.
+            if S__File[0]: 
+            # Finally this will Save your file to the path selected.
+                with open(S__File[0], 'w') as file:
+                     file.write(Text)
+    def action_abrir_imagen(self):
+        wb.open_new(r'AST_asc.dot.png')
+    def action_abrir_reporte_lexico(self):
+        wb.open_new(r'ReporteErroresLexicos.pdf')
 
-        # We just store the contents of the text file along with the
-        # format in html, which Qt does in a very nice way for us
-        with open(self.filename,"wt") as file:
-            file.write(self.text.toHtml())
+    def action_abrir_reporte_Sintactico(self):
+        wb.open_new(r'ReporteErroresSintacticos.pdf')
+    def action_abrir_reporte_Gramatical(self):
+        wb.open_new(r'ReporteGramatical.pdf')
 
+      
             
 if __name__ == "__main__":
     import sys

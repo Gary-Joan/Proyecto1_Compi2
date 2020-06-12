@@ -22,14 +22,13 @@ class acciones ():
         self.fin=0
         self.posLabel=0
         
-    def ejecutar (self,consola):
-        consola.setPlainText('')
-        self.acciones(self.Raiz,consola)
+    def ejecutar (self,):
+        
+        self.acciones(self.Raiz,)
 
-    def acciones(self,Raiz,consola):
-      resutl=None
-      consola1=consola
-      if(Raiz!=None):
+    def acciones(self,Raiz):
+        resutl=None
+        #consola1=consola
         if Raiz.produccion=='lista_inst':
             # listas de hijos de produccion lista de instancias
             self.lsen=Raiz.hijos # es la lista de hijos de lista_inta
@@ -40,7 +39,7 @@ class acciones ():
                 if(isinstance(node,LexToken)):
                     s=0
                 else:    
-                    resutl=self.acciones(node,consola1)
+                    resutl=self.acciones(node)
                     
                     if(resutl!=None):
                         if(resutl.tipo=='goto'):                      
@@ -51,7 +50,7 @@ class acciones ():
                 if(resutl.tipo=='goto'):
 
                     self.i=int(resutl.valor)
-                    resutl=self.acciones(self.Raiz,consola1)
+                    resutl=self.acciones(self.Raiz)
                 
                     
                 # si el result dice que ve vengo de un goto
@@ -64,8 +63,8 @@ class acciones ():
             der=Raiz.hijos[1] # hijo de derecho tenes expresion
             if len(izq.hijos)==1:
             
-                izq=self.acciones(izq,consola1) # el var y esta en tablal de simblos / objeto simbolo
-                der=self.acciones(der,consola1) # obtengo el resultado del arbol exp_num y me devuelve un objeto tipo simbolo o un null si hubo un error
+                izq=self.acciones(izq) # el var y esta en tablal de simblos / objeto simbolo
+                der=self.acciones(der) # obtengo el resultado del arbol exp_num y me devuelve un objeto tipo simbolo o un null si hubo un error
                 if der != None:
                 # no hay un error en tiempo de ejecucion
     
@@ -88,7 +87,7 @@ class acciones ():
             if len(Raiz.hijos)==1:
                 # es crear una variable simple
                 izq=Raiz.hijos[0]
-                resutl=self.acciones(izq,consola1)
+                resutl=self.acciones(izq)
 
             else:
                 #pasos para accesar a un vector
@@ -106,7 +105,7 @@ class acciones ():
                 self.tabla_simbolos.add_symbol(nuevo_simbolo)
                 resutl=nuevo_simbolo
         elif Raiz.produccion == 'imprimir':
-            resutl=self.acciones(Raiz.hijos[0],consola1)
+            resutl=self.acciones(Raiz.hijos[0])
             cadenafinal=""
             if resutl != None:
                 if(resutl.tipo=='l_array'):
@@ -115,13 +114,12 @@ class acciones ():
                         char_simbolo=cadena_array.get_symbol(char)
                         cadenafinal+=char_simbolo.valor
                     self.imprimir+=cadenafinal+"\n"
-                    consola1.appendPlainText(cadenafinal)  
-                         #imprimir cada dato del array
+                    #consola1.appendPlainText(cadenafinal)          #imprimir cada dato del array
                 elif(resutl.tipo=='cadena'):
                     self.imprimir+=resutl.valor+"\n"
-                    consola1.appendPlainText(resutl.valor)  
+                    #consola1.appendPlainText(resutl.valor)  
                 else:
-                    consola1.appendPlainText(resutl.valor)    
+                    #consola1.appendPlainText(resutl.valor)    
                     self.imprimir+=resutl.valor+"\n"
    
 
@@ -175,33 +173,13 @@ class acciones ():
             resutl = self.acciones_goto(Raiz)
         ############### ACCCIONES IF
         elif Raiz.produccion == 'sentenciaif':
-            resutl = self.acciones_if(Raiz,consola1)
+            resutl = self.acciones_if(Raiz)
         ############### ACCION EXIT
         elif Raiz.produccion == 'exit':
             resutl = self.accion_exit(Raiz)
-        ############### ACCION UNSET
-        elif Raiz.produccion == 'unset':
-            resutl = self.accion_unset(Raiz)
-      else:
-          self.error+="No hay Intrucciones que Ejecutar"
-      return resutl
-          
 
- #-----------------------------------------------------------------------------SENTENCIA UNSET------------------------------------
-    def accion_unset(self,Raiz):
-        result=None
-        if(Raiz!=None):
-            variable_borrar=self.tabla_simbolos.get_symbol(Raiz[1].id)
-            if(variable_borrar!=None):
-                variable_borrar={}
-            else:
-                self.error+="Error la variable"+str(Raiz[1].id)+"no se puede eliminar porque no exite"
-
-
-        else:
-            self.error+="Error en Unset"
-        return result
-
+        return resutl
+        
 
  #-----------------------------------------------------------------------------SENTENCIA EXIT------------------------------------
     def accion_exit(self,Raiz):
@@ -216,7 +194,7 @@ class acciones ():
             if(Raiz.produccion=='sentenciaif'):
                 izq=Raiz.hijos[0] #hijo izq toma el valor de la expresion a evaluar
                 der=Raiz.hijos[1] #hijo derecho decide si usa el goto         
-                resultado_expresion_if=self.acciones(izq,consola1) # el var y esta en tablal de simblos / objeto simbolo
+                resultado_expresion_if=self.acciones(izq) # el var y esta en tablal de simblos / objeto simbolo
                 if(resultado_expresion_if.valor=='1'):
                     
                     label_goto=self.acciones_goto(der)
@@ -849,12 +827,15 @@ class acciones ():
                                     variable_arry.valor.add_symbol(nuevo_simbolo)
                                     id_chr+=1
 
+                    #ingresar cadena de caracteres a un vector
+                    
+                   
+
+
             else:
                 self.error+= "Error no es un vector la variable "+nombre_variable+"\n"
-                result=None
         else:
             self.error+="Error de asignacion en vec \n"
-            result=None
                       
         return  result
     
@@ -923,7 +904,6 @@ class acciones ():
                                         <th>ID</th>
                                         <th>Valor</th>
                                         <th>Tipo</th>
-                                        <th>Referencia</th>
                                     </tr>
                                     
                                      """
@@ -931,7 +911,7 @@ class acciones ():
         simbolo=""
         for key in self.tabla_simbolos.simbolos.items():
             cont+=1
-            simbolo+="<tr> \n<td>"+str(cont)+"</td>"+"<td>"+str(key[1].id)+"</td>"+"<td>"+str(key[1].valor)+"</td>"+"<td>"+str(key[1].tipo)+"</td>"+"<td>"+str(key[1].tamano)+"</td></tr>\n"
+            simbolo+="<tr> \n<td>"+str(cont)+"</td>"+"<td>"+str(key[1].id)+"</td>"+"<td>"+str(key[1].valor)+"</td>"+"<td>"+str(key[1].tipo)+"</td></tr>\n"
 
         cadena_html+=simbolo    
         cadena_html+="""

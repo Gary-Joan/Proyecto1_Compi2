@@ -1,0 +1,20 @@
+digraph G {node[shape=box, style=filled, color=Gray95]; edge[color=blue];rankdir=UD 
+
+"0_lista_inst"->"9_asignacion"
+"9_asignacion"->"10_variable"
+"10_variable"->"11_var"
+
+
+"9_asignacion"->"12_entero"
+
+
+"0_lista_inst"->"13_imprimir"
+"13_imprimir"->"14_valorIMP"
+"14_valorIMP"->"15_variable"
+"15_variable"->"16_var"
+
+
+
+
+
+}
