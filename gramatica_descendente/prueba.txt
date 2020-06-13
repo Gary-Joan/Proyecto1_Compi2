@@ -1,5 +1,15 @@
 main:
-  #--------------Struct--------------------------
-  $t1=5;
-  print($t1);
-  $t1=4;
+$t3 = -6;
+print($t3);
+$t3 = 5;
+ret2:
+print($t3);
+exit;
+$t2 = 1;
+ret0: 
+$t2 = 5;
+print($t2);
+goto ret2;
+print($t3);
+$t5 = 5;
+print($t5);

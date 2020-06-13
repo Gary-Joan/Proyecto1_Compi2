@@ -316,27 +316,18 @@ def p_instruccion(t) :
 def p_listainstrucciones(t):
     'listainstrucciones : lista listainstrucciones_prima'
     #constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type) )
+    print(t[1])
     
-    #t[0] = t[1]
     #t[0] = agregar_hijo(t[0],t[2])
 def p_listainstrucciones_prima(t):
     'listainstrucciones_prima : lista listainstrucciones_prima'
-    t[0]=[t[-1]]
-    t[0].append(t[1])
-    print(t[0])
-  
-  
-
-   
-
+    
+    print(t[1])
    
 def p_lista_listainstrucciones(t):
     'listainstrucciones_prima : '
-    t[0]=t[-3]
-  
+ 
 
-
-   
     #constantes.reporte_gramatical.append(str(t.slice[0].type+" -> "+t.slice[1].type))
 
     #t[0] = crear_hoja('lista_inst','')
@@ -356,12 +347,13 @@ def p_lista(t):
     # constantes.reporte_gramatical.append(str(t.slice[0].type+" -> "+str(t.slice[1].type)))
     
     t[0]=t[1]
-    
+    #print(t[0])
 
 def p_inst_asignacion(t):
     '''inst_asignacion : variable IGUAL expresion PUNTOCOMA 
                           '''
     t[0]=('asig',t[1],t[3])
+    #print(t[0])
   
     #constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type)+ " "+str(t.slice[4].type))
     #t[0] = crear_hoja('asignacion','')
@@ -372,7 +364,7 @@ def p_inst_asignacion(t):
 def p_variable_normal(t):
     'variable : VAR variable_prima'
     t[0] = ('var',t[1])
-    
+    #print(t[0])
     #constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type))
     #t[0] = crear_hoja('variable','')
     #hijo = crear_hoja('var', t[1])
@@ -424,7 +416,7 @@ def p_inst_asignacion_arreglo(t):
     # constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type))
     # t[0] = crear_hoja('valorIMP','')
     # t[0] = agregar_hijo(t[0],t[1])
-    t[0]=('variable',t[1])
+    t[0]=('valor_imp',t[1])
 def p_inst_array(t):
     'expresion : inst_array'
     constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type))
@@ -531,7 +523,7 @@ def p_valorp_numerico_entero(t):
     # constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)) 
     # t[0]=crear_hoja('entero',t[1])
     t[0] = ('entero',t[1])
-
+    
 
 def p_valorp_cadena(t):
     '''valorp : CADENA

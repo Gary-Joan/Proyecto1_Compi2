@@ -1,4 +1,0 @@
-Caracter desconocido -  - en la linea 1, columna 6
-Caracter desconocido -  - en la linea 2, columna 14
-Caracter desconocido -  - en la linea 3, columna 6
-Caracter desconocido -  - en la linea 4, columna 14

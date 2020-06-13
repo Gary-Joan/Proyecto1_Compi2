@@ -1,1 +1,1 @@
-Error sintactico
+Error sintactico en token unset linea 4 columna 7

@@ -28,6 +28,7 @@ class Simbolo():
 class tabladesimbolos(object):
     def __init__(self, simbolos={}):
         self.simbolos = simbolos
+    
 
     def add_symbol(self, simbolo):
         self.simbolos[simbolo.id] = simbolo
@@ -44,3 +45,8 @@ class tabladesimbolos(object):
             print('Error: variable ', simbolo.id, ' no definida.')
         else:
             self.simbolos[simbolo.id] = simbolo
+    def delete_symbol(self,simbolo):
+        if not simbolo.id in self.simbolos:
+            print('Error: variable',simbolo.id, 'no encontrada')
+        else:
+            self.simbolos.pop(simbolo.id)

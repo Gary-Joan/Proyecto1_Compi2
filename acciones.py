@@ -75,7 +75,7 @@ class acciones ():
                     self.tabla_simbolos.update_symbol(izq)
                 else:
                     #existe un error en tiempo de ejecucion
-                    self.error+="existe un error en la Asignacion \n"
+                    self.error+="Error existe un error en la Asignacion \n"
             else:
                 der=self.acciones(der,consola1)
             
@@ -140,6 +140,9 @@ class acciones ():
         elif Raiz.produccion == 'exp_log':
             resutl = self.acciones_exp_log(Raiz)
 
+        elif Raiz.produccion == 'exp_bit_bit':
+            resutl = self.acciones_exp_bit(Raiz)
+
         elif Raiz.produccion == 'valorIMP':
             resutl=self.acciones_exp_num(Raiz)
         
@@ -191,11 +194,14 @@ class acciones ():
     def accion_unset(self,Raiz):
         result=None
         if(Raiz!=None):
-            variable_borrar=self.tabla_simbolos.get_symbol(Raiz[1].id)
-            if(variable_borrar!=None):
-                variable_borrar={}
+            if(Raiz.produccion=='unset'):
+                variable_borrar=self.tabla_simbolos.get_symbol(Raiz.hijos[0])
+                if(variable_borrar!=None):
+                    self.tabla_simbolos.delete_symbol(variable_borrar)
+                else:
+                    self.error+="Error la variable"+str(Raiz.hijos[0].id)+"no se puede eliminar porque no exite"
             else:
-                self.error+="Error la variable"+str(Raiz[1].id)+"no se puede eliminar porque no exite"
+                self.error+="Error en Unset"
 
 
         else:
@@ -508,6 +514,44 @@ class acciones ():
         except AttributeError:
             print('error')
        
+        return result
+ #-----------------------------------------------------------------------------EXPRESIONES BIT A BIT----------------------------
+    def acciones_exp_bit(self, Raiz):
+        result=None
+        if(Raiz!=None):
+            if Raiz.produccion=='exp_bit_bit':
+                izq = Raiz.hijos[0] # seria el valor de el lado izq
+                op  = Raiz.hijos[1] # seria el operador bit a bit
+                der = Raiz.hijos[2] # seria el valor derecho
+                izq=self.acciones_exp_bit(izq) # ya tengo el valor del hijo izq
+                der=self.acciones_exp_bit(der) # ya tengo el valor del hijo der
+                result=self.operaciones_bit_bit(izq,der,op.produccion) # me regresa el objeto de tipo simbolo
+
+            elif Raiz.produccion=='notbit':
+                result = self.operacion_not_bit(Raiz)
+
+            elif Raiz.produccion == 'entero':
+                result = Simbolo('numero','entero',str(Raiz.valor),'var','1','0')
+
+            elif Raiz.produccion=='var':
+                # busco el simbolo en la tabla de simbolos
+                nombre=Raiz.valor #obtengo el nombre de la variable
+                result=self.tabla_simbolos.get_symbol(nombre)
+        else:
+            self.result+="Error en operacion bit a bit\n"
+            result=None
+        return result
+    def operaciones_bit_bit(self, izq, der,op):
+        result=None 
+    def operacion_not_bit(self,Raiz):
+        result=None
+        if Raiz!=None:
+            if(Raiz.produccion=='var'):
+                nuevo_simbolo=self.tabla_simbolos.get_symbol(Raiz.hijo[1].id)
+                
+        else:
+            self.error+="Error en la conversion negativa del bit"
+            result=None
         return result
  #-----------------------------------------------------------------------------EXPRESIONES RELACIONALES-------------------------   
     def acciones_exp_rel(self, Raiz):
