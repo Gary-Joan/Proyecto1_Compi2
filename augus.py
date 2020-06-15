@@ -4,7 +4,7 @@ import tablasimbolo as TS
 
 from acciones import acciones
 
-
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 import sys
 sys.setrecursionlimit(10**6)

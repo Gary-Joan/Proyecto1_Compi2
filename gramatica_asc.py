@@ -13,10 +13,6 @@ from graphviz import render
 from fpdf import FPDF 
 
 def reportegramatica():
-    pdf = FPDF()    
-    pdf.add_page() 
-    pdf.set_font("Arial", size = 10)
- 
     archivo=""
     for item in reversed(constantes.reporte_gramatical):
         archivo+=item+"\n"
@@ -24,6 +20,12 @@ def reportegramatica():
     f = open("ReporteGramatical.txt", "w")
     f.write(archivo)
     f.close()
+    
+    pdf = FPDF()    
+    pdf.add_page() 
+    pdf.set_font("Arial", size = 10)
+ 
+
     f = open("ReporteGramatical.txt", "r") 
     pdf.cell(200, 10, txt = "REPORTE GRAMATICAL",  
          ln = 1, align = 'C') 
@@ -37,14 +39,15 @@ def reportegramatica():
 
 
 def reporte_de_errores_lexicos():
+    f = open("ReporteErroresLexicos.txt", "w")
+    f.write(constantes.errores_lexico)
+    f.close()
     pdf = FPDF()    
     pdf.add_page() 
     pdf.set_font("Arial", size = 10)
  
     archivo=""
-    f = open("ReporteErroresLexicos.txt", "w")
-    f.write(constantes.errores_lexico)
-    f.close()
+
     f = open("ReporteErroresLexicos.txt", "r") 
     pdf.cell(200, 10, txt = "REPORTE ERRORES LEXICOS",  
          ln = 1, align = 'C') 
@@ -58,14 +61,16 @@ def reporte_de_errores_lexicos():
     
 
 def reporte_de_errores_sintacticos():
+    f = open("ReporteErroresSintacticos.txt", "w")
+    f.write(constantes.errores_sintantico)
+    f.close()
+
     pdf = FPDF()    
     pdf.add_page() 
     pdf.set_font("Arial", size = 10)
  
     archivo=""
-    f = open("ReporteErroresSintacticos.txt", "w")
-    f.write(constantes.errores_sintantico)
-    f.close()
+    
     f = open("ReporteErroresSintacticos.txt", "r") 
     pdf.cell(200, 10, txt = "REPORTE ERRORES SINTACTICOS",  
          ln = 1, align = 'C') 
@@ -212,7 +217,7 @@ t_OR            = r'\|\|'
 t_SHIFTDER      = r'>>'
 t_SHIFTIZQ      = r'<<'
 t_NOTBIT        = r'\~'
-t_ANDBIT        = r'\&'
+t_ANDBIT        = r'&'
 t_ORBIT         = r'\|'
 t_XORBIT        = r'\^'
 
@@ -430,13 +435,14 @@ def p_op(t):
           | MAYORIGUALQUE
           | MENORIGUALQUE
           | NIGUALQUE
-          | AND
-          | OR
-          | XOR
-          | NOTBIT
           | ANDBIT
           | ORBIT
-          | XORBIT   
+          | XORBIT
+          | AND
+          | OR
+          | XOR   
+          | SHIFTDER
+          | SHIFTIZQ
     ''' 
     #constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)) 
     if   t[1] == '+':     
@@ -466,15 +472,17 @@ def p_op(t):
     elif t[1] == '||' :
             t[0]= crear_hoja('or','exp_log')
     elif t[1] == 'xor' : 
-            t[0]= crear_hoja('xor','exp_log')
-    elif t[1] == '~' : 
-            t[0]= crear_hoja('notbit','exp_bit_bit')            
+            t[0]= crear_hoja('xor','exp_log')          
     elif t[1] == '&' : 
             t[0]= crear_hoja('andbit','exp_bit_bit')           
     elif t[1] == '|' : 
             t[0]= crear_hoja('orbit','exp_bit_bit')
     elif t[1] == '^' : 
             t[0]= crear_hoja('xorbit','exp_bit_bit')  
+    elif t[1] == '<<' : 
+            t[0]= crear_hoja('shiftizq','exp_bit_bit')  
+    elif t[1] == '>>' : 
+            t[0]= crear_hoja('shiftder','exp_bit_bit')  
 
 def p_expresion_unaria_negativo(t):
     'expresion_num : RESTA valorp %prec UMENOS'
@@ -490,7 +498,11 @@ def p_expresion_absoluto(t):
    # t[0] = ExpresionAbsoluto(t[3])
     t[0] = crear_hoja('abs','')
     t[0] = agregar_hijo(t[0],t[3])
-   
+
+def p_not_bit(t):
+    'expresion_num : NOTBIT valorp'
+    t[0] = crear_hoja('notbit','exp_bit_bit')
+    t[0] = agregar_hijo(t[0],t[2]) 
 def p_expresion_unaria(t):
     'expresion_num :  valorp'
     constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{ t[0]=t[1]}") 
@@ -519,11 +531,11 @@ def p_valorp_cadena(t):
     t[0] =crear_hoja('cadena',t[1])
     #t[0] = ExpresionCadenaComillas(t[1])
 def p_valorp_variable(t):
-    'valorp : VAR'
+    'valorp : variable'
     constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0] = crear_hoja('var',t[1]) }") 
    # t[0] = ExpresionID(t[1])
-    t[0] = crear_hoja('var',t[1])
-
+    #t[0] = crear_hoja('var',t[1])
+    t[0] = t[1]
 def p_valor_identificador_label(t):
     'valorp : ID'
     constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0] = crear_hoja('etiqueta',t[1]) }") 

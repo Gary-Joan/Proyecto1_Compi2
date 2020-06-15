@@ -10,7 +10,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 #from QcoderEditor import *
 from PyQt5.Qsci import *
 from PyQt5.QtPrintSupport import *
-from PyQt5.QtGui import QColor, QFont
+from PyQt5.QtGui import QColor, QFont, QTextCursor
 import re
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
 import webbrowser as wb
@@ -262,6 +262,7 @@ class Ui_MainWindow(QMainWindow):
         self.actionSintactico.triggered.connect(lambda :self.action_abrir_reporte_Sintactico())
         self.actionLexico.triggered.connect(lambda :self.action_abrir_reporte_lexico())
         self.actionNuevo.triggered.connect(lambda :self.nuevo_archivo())
+
 
         self.__myFont = QFont()
         self.__myFont.setPointSize(8)

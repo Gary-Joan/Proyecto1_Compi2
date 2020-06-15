@@ -1,11 +1,13 @@
 from tablasimbolo import Simbolo, tabladesimbolos
 
 import tkinter as tk
-from tkinter import StringVar
+from tkinter import Tk, simpledialog
 import NodoArbol
 from ply.lex import LexToken, Lexer
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from tkinter.ttk import Button
+from PyQt5.QtGui import QTextCursor
 
 
 
@@ -169,7 +171,7 @@ class acciones ():
             resutl = self.acciones_conversion(Raiz)
         
         elif Raiz.produccion == 'read':
-            resutl = self.acciones_read(Raiz)
+            resutl = self.acciones_read(Raiz,consola1)
         
         ##############  ACCIONES GO TO
         elif Raiz.produccion == 'label':
@@ -185,6 +187,9 @@ class acciones ():
         ############### ACCION UNSET
         elif Raiz.produccion == 'unset':
             resutl = self.accion_unset(Raiz)
+        ############### ACCION NOTBIT
+        elif Raiz.produccion == 'notbit':
+            resutl = self.operacion_not_bit(Raiz)
       else:
           self.error+="No hay Intrucciones que Ejecutar"
       return resutl
@@ -278,50 +283,17 @@ class acciones ():
         return result
 
  #-----------------------------------------------------------------------------COMANDO READ------------------------------------
-    def acciones_read(self,Raiz):
+    def acciones_read(self,Raiz,consola):
         result=None
+        consola1=consola
         if(Raiz.produccion=='read'):
-            # while True:
-            #     num = input()
-            #     try:
-            #         valor_lectura = int(num)
-            #         nuevo_simbolo = Simbolo('sin','entero',str(valor_lectura),'entero','1','1')
-            #         result=nuevo_simbolo
-            #         break;
-            #     except ValueError:
-            #         try:
-            #             valor_lectura = float(num)
-            #             nuevo_simbolo = Simbolo('sin','decimal',str(valor_lectura),'decimal','1','1')
-            #             result=nuevo_simbolo
-            #             break;
-            #         except ValueError:
-            #             print ("Ingreso un valor numerico valido")
-            
-            master = tk.Tk()
-            tk.Label(master, 
-            text="Ingresar Valor ").grid(row=0)
-            
-            v = StringVar()
-            e1 = tk.Entry(master, textvariable=v)
-            
-
-            e1.grid(row=0, column=1)
-            
-
-            tk.Button(master, 
-            text='Ingresar ', 
-            command=master.quit).grid(row=2, 
-                                    column=0, 
-                                    sticky=tk.W, 
-                                    pady=4)
-            
-            tk.mainloop()
-            nuevo_simbolo = Simbolo('sin','var',v.get(),'sin','1','1')
-            result=nuevo_simbolo           
+          S=0
+                 
         else:
             self.error+= 'Error en la lectura\n'
 
-        return result       
+        return result  
+  
  #-----------------------------------------------------------------------------VALORES NEGATIVOS-------------------------------       
     def  acciones_negativo(self,Raiz):
         result = None
@@ -527,9 +499,6 @@ class acciones ():
                 der=self.acciones_exp_bit(der) # ya tengo el valor del hijo der
                 result=self.operaciones_bit_bit(izq,der,op.produccion) # me regresa el objeto de tipo simbolo
 
-            elif Raiz.produccion=='notbit':
-                result = self.operacion_not_bit(Raiz)
-
             elif Raiz.produccion == 'entero':
                 result = Simbolo('numero','entero',str(Raiz.valor),'var','1','0')
 
@@ -542,13 +511,55 @@ class acciones ():
             result=None
         return result
     def operaciones_bit_bit(self, izq, der,op):
-        result=None 
+        result=None
+        if (izq!=None and der!=None):
+            if(izq.tipo=='entero' and der.tipo=='entero'):
+                if(op=='orbit'):
+                    valor=str(int(izq.valor)|int(der.valor))
+                    new=Simbolo('sin','entero',valor,'var',str(len(valor)),'0')
+                    result=new
+                    return result
+                elif(op=='xorbit'):
+                    valor=str(int(izq.valor)^int(der.valor))
+                    new=Simbolo('sin','entero',valor,'var',str(len(valor)),'0')
+                    result=new
+                    return result
+                elif(op=='shiftizq'):
+                    valor=str(int(izq.valor)<<int(der.valor))
+                    new=Simbolo('sin','entero',valor,'var',str(len(valor)),'0')
+                    result=new
+                    return result  
+                elif(op=='shiftder'):
+                    valor=str(int(izq.valor)>>int(der.valor))
+                    new=Simbolo('sin','entero',valor,'var',str(len(valor)),'0')
+                    result=new
+                    return result                  
+
+            else:
+                self.error+="Solo se puede operar numeros enteros\n"
+                result=None
+                return result
+        else:
+            self.error+="Error en la conversion negativa del bit"
+            result=None
+        return result
     def operacion_not_bit(self,Raiz):
         result=None
         if Raiz!=None:
-            if(Raiz.produccion=='var'):
-                nuevo_simbolo=self.tabla_simbolos.get_symbol(Raiz.hijo[1].id)
-                
+            sim=Raiz.hijos[0]
+            if(sim.produccion=='var'and sim!=None):
+                nuevo_simbolo=self.tabla_simbolos.get_symbol(sim.valor)
+                if(nuevo_simbolo.tipo=='entero'):
+                    
+                    valor=str(~int(nuevo_simbolo.valor))
+                    new=Simbolo(nuevo_simbolo.id,nuevo_simbolo.tipo,valor,nuevo_simbolo.rol,str(len(valor)),'0')
+                    result = new
+                    return result
+                else:
+
+                    self.error+="No se puede hacer el negativo de "+nuevo_simbolo.id+"\n"
+                    result=None
+                    return result
         else:
             self.error+="Error en la conversion negativa del bit"
             result=None
@@ -582,7 +593,8 @@ class acciones ():
 
             else:
                 #acceso a un vector
-                a=""
+                result=self.acciones_accesso_array(Raiz)
+                
         elif Raiz.produccion=='var':
             # busco el simbolo en la tabla de simbolos
             nombre=Raiz.valor #obtengo el nombre de la variable
@@ -680,7 +692,7 @@ class acciones ():
 
             else:
                 #acceso a un vector
-                a=""
+                result=self.acciones_accesso_array(Raiz)
         elif Raiz.produccion=='var':
             # busco el simbolo en la tabla de simbolos
             nombre=Raiz.valor #obtengo el nombre de la variable
@@ -816,7 +828,7 @@ class acciones ():
         else:
             self.error+= "Error en la conversion del valor \n"
             return None        
-  #-----------------------------------------------------------------------------CONVERSION DE VALORES---------------------
+  #-----------------------------------------------------------------------------ACCIONES ARRAY---------------------
     def acciones_array(self, Raiz,valorP):
         result = None
         # raiz es  variable
