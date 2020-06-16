@@ -101,8 +101,11 @@ def recorrer_arbol(nodoRaiz):
     #for nodo in nodoRaiz.hijos:
      
      #  recorrer_arbol(nodo)
-    graficar_arbol(imprimir_arbol(nodoRaiz,0))
-    render('dot', 'png', 'AST_asc.dot') 
+    try:
+        graficar_arbol(imprimir_arbol(nodoRaiz,0))
+        render('dot', 'png', 'AST_asc.dot') 
+    except:
+        print("Error recorrido arbol AST\n")
     #print(imprimir_arbol(nodoRaiz,0))
 
 def graficar_arbol(arbol):
@@ -124,19 +127,20 @@ def imprimir_arbol(nodoRaiz, id):
     var=0
     cuerpo=""
     id_s=str(id)
-    
-    for hijo in nodoRaiz.hijos:
-        if(hijo!=None):
-            if(isinstance(hijo,LexToken) or isinstance(hijo, str)):
-                        s=0
-            else:  
-                var=incrementar()
-                var_s=str(var)
-                cuerpo += "\""+id_s+"_"+ nodoRaiz.produccion + "\"->\""+var_s+"_"+hijo.produccion+"\""+"\n"
-                aux = imprimir_arbol(hijo, var)+"\n";  
-                cuerpo = cuerpo + aux
-    return cuerpo
-
+    try:
+        for hijo in nodoRaiz.hijos:
+            if(hijo!=None):
+                if(isinstance(hijo,LexToken) or isinstance(hijo, str)):
+                            s=0
+                else:  
+                    var=incrementar()
+                    var_s=str(var)
+                    cuerpo += "\""+id_s+"_"+ nodoRaiz.produccion + "\"->\""+var_s+"_"+hijo.produccion+"\""+"\n"
+                    aux = imprimir_arbol(hijo, var)+"\n";  
+                    cuerpo = cuerpo + aux
+        return cuerpo
+    except:
+        print("Error en creacion de arbol AST\n")
 palabrasreservadas = {
     'main' : 'MAIN',
     'print' : 'IMPRIMIR',
@@ -284,11 +288,14 @@ def t_newline(t):
 
 
 def t_error(t):
+    try:
         a="Caracter desconocido - "+str(t.value[0])+ " - en la linea "+str(t.lexer.lineno)+ ", columna "+str(t.lexer.lexpos  + 1)+"\n" 
         #print(a)
         constantes.errores_lexico+=str(a)
     
         t.lexer.skip(1)
+    except:
+        print("Error lexico desconocido\n")
                          
 # Construyendo el analizador léxico
 import ply.lex as lex

@@ -11,38 +11,42 @@ from graphviz import render
 from fpdf import FPDF 
 
 def reportegramatica():
-    pdf = FPDF()    
-    pdf.add_page() 
-    pdf.set_font("Arial", size = 10)
- 
     archivo=""
     for item in reversed(constantes.reporte_gramatical):
         archivo+=item+"\n"
     #Aqui ponemos el valor de el diccionario de instruccion dentro de una archivo
-    f = open("ReporteGramatical.txt", "w")
+    f = open("ReporteGramatical_desc.txt", "w")
     f.write(archivo)
     f.close()
-    f = open("ReporteGramatical.txt", "r") 
+
+    pdf = FPDF()    
+    pdf.add_page() 
+    pdf.set_font("Arial", size = 10)
+ 
+
+    f = open("ReporteGramatical_desc.txt", "r") 
     pdf.cell(200, 10, txt = "REPORTE GRAMATICAL",  
          ln = 1, align = 'C') 
     for x in f: 
         pdf.cell(200, 10, txt = x, ln = 2, align = 'L') 
     
     # save the pdf with name .pdf 
-    pdf.output("ReporteGramatical.pdf")  
+    pdf.output("ReporteGramatical_desc.pdf")  
     f.close()
     pdf.close()
 
 
 def reporte_de_errores_lexicos():
-    pdf = FPDF()    
-    pdf.add_page() 
-    pdf.set_font("Arial", size = 10)
- 
     archivo=""
     f = open("ReporteErroresLexicos.txt", "w")
     f.write(constantes.errores_lexico)
     f.close()
+
+    pdf = FPDF()    
+    pdf.add_page() 
+    pdf.set_font("Arial", size = 10)
+ 
+
     f = open("ReporteErroresLexicos.txt", "r") 
     pdf.cell(200, 10, txt = "REPORTE ERRORES LEXICOS",  
          ln = 1, align = 'C') 
@@ -56,14 +60,16 @@ def reporte_de_errores_lexicos():
     
 
 def reporte_de_errores_sintacticos():
-    pdf = FPDF()    
-    pdf.add_page() 
-    pdf.set_font("Arial", size = 10)
- 
     archivo=""
     f = open("ReporteErroresSintacticos.txt", "w")
     f.write(constantes.errores_sintantico)
     f.close()
+
+    pdf = FPDF()    
+    pdf.add_page() 
+    pdf.set_font("Arial", size = 10)
+ 
+
     f = open("ReporteErroresSintacticos.txt", "r") 
     pdf.cell(200, 10, txt = "REPORTE ERRORES SINTACTICOS",  
          ln = 1, align = 'C') 
@@ -275,13 +281,14 @@ def t_newline(t):
 
 
 def t_error(t):
-        a="Caracter desconocido - "+str(t.value[0])+ " - en la linea "+str(t.lexer.lineno)+ ", columna "+str(t.lexer.lexpos - t.lexer.linestart + 1)+"\n" 
+    try:
+        a="Caracter desconocido - "+str(t.value[0])+ " - en la linea "+str(t.lexer.lineno)+ ", columna "+str(t.lexer.lexpos  + 1)+"\n" 
         #print(a)
         constantes.errores_lexico+=str(a)
-        print(a)
-        
+    
         t.lexer.skip(1)
-                         
+    except:
+        print("Error lexico desconocido\n")
 # Construyendo el analizador léxico
 import ply.lex as lex
 lexer = lex.lex()
@@ -384,22 +391,22 @@ def p_variable_arreglo_lista(t):
 
     constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> <vacio>")
     t[0] =t[-1]
-    if len(t[0].hijos)==1:
-        hijo = crear_hoja('param_accesso','')
-        hijos = t[-3]
-        hijo = agregar_hijo(hijo,hijos)
-        t[0] = agregar_hijo(t[0],hijo)
-    else:
+    # if len(t[0].hijos)==1:
+    #     hijo = crear_hoja('param_accesso','')
+    #     hijos = t[-3]
+    #     hijo = agregar_hijo(hijo,hijos)
+    #     t[0] = agregar_hijo(t[0],hijo)
+    # else:
         
-        hijo = t[0].hijos
-        hijos = t[-3]
-        hijo = agregar_hijo(hijo,hijos)
+    #     hijo = t[0].hijos
+    #     hijos = t[-3]
+    #     hijo = agregar_hijo(hijo,hijos)
     
 
 def p_variable_cochetes(t):
     'var_arreglo : LLAVEIZQ valorp LLAVEDER' 
    
-    # constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type))
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type))
     t[0] = t[2]
    
 
@@ -420,7 +427,7 @@ def p_inst_asignacion_read(t):
 def p_inst_asignacion_arreglo(t):
     'expresion : variable'
    
-    # constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type))
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type))
     t[0] = crear_hoja('valorIMP','')
     t[0] = agregar_hijo(t[0],t[1])
     #t[0]=('valor_imp',t[1])
@@ -526,7 +533,7 @@ def p_valorp_numerico(t):
 def p_valorp_numerico_entero(t):
     '''valorp : ENTERO
     '''
-    # constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)) 
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)) 
     t[0] = crear_hoja('entero',t[1])
     #t[0] = ('entero',t[1])
     
@@ -614,7 +621,7 @@ def p_array(t):
 
 def p_inst_imprimir(t):
     'inst_imprimir       : IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA'
-    # constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type)+" "+str(t.slice[4].type)+" "+str(t.slice[5].type))
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+" "+str(t.slice[2].type)+" "+str(t.slice[3].type)+" "+str(t.slice[4].type)+" "+str(t.slice[5].type))
     # #t[0] = Imprimir(t[3])
     t[0] = crear_hoja('imprimir','')
     t[0] = agregar_hijo(t[0],t[3])
@@ -665,10 +672,10 @@ import ply.yacc as yacc
 from ply.lex import LexToken
 parser = yacc.yacc()
 
-f = open("./gramatica_descendente/prueba.txt", "r")
-input = f.read()
+#f = open("./gramatica_descendente/prueba.txt", "r")
+#input = f.read()
 
-parser.parse(input)
+#parser.parse(input)
 
 
 def parse(input) :

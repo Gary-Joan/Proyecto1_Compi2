@@ -12,10 +12,11 @@ from PyQt5.Qsci import *
 from PyQt5.QtPrintSupport import *
 from PyQt5.QtGui import QColor, QFont, QTextCursor
 import re
-from PyQt5.QtWidgets import QFileDialog, QMainWindow
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QMessageBox
 import webbrowser as wb
 import gramatica_asc as gr
 import tablasimbolo as TS
+import gramatica_descendente.gramatica_desc as gr_desc
 
 from acciones import acciones
 import sys
@@ -77,7 +78,7 @@ class MyLexer(QsciLexerCustom):
 
         # 3. Tokenize the text
         # ---------------------
-        p = re.compile(r"[*]\/|\/[*]|\s+|\w+|\W")
+        p = re.compile(r"\/[#]\s+|\s+|\w+|\W")
 
         # 'token_list' is a list of tuples: (token_name, token_len)
         token_list = [ (token, len(bytearray(token, "utf-8"))) for token in p.findall(text)]
@@ -95,8 +96,7 @@ class MyLexer(QsciLexerCustom):
         for i, token in enumerate(token_list):
             if multiline_comm_flag:
                 self.setStyling(token[1], 3)
-                if token[0] == "*/":
-                    multiline_comm_flag = False
+
             else:
                 if token[0] in ["array", "print", "abs", "goto", "include","main","exit","unset"]:
                     # Red style
@@ -104,7 +104,9 @@ class MyLexer(QsciLexerCustom):
                 elif token[0] in ["(", ")", "{", "}", "[", "]"]:
                     # Blue style
                     self.setStyling(token[1], 2)
-
+                elif token[0] == "#":
+                    
+                    self.setStyling(token[1], 3)
                 else:
                     # Default style
                     self.setStyling(token[1], 0)
@@ -213,17 +215,25 @@ class Ui_MainWindow(QMainWindow):
 
         self.actionReporteAST = QtWidgets.QAction(MainWindow)
         self.actionReporteAST.setObjectName("actionReporteAST")
+        self.actionReporteAST_desc = QtWidgets.QAction(MainWindow)
+        self.actionReporteAST_desc.setObjectName("actionReporteAST_desc")
         self.actionLexico = QtWidgets.QAction(MainWindow)
         self.actionLexico.setObjectName("actionLexico")
         self.actionSintactico = QtWidgets.QAction(MainWindow)
         self.actionSintactico.setObjectName("actionSintactico")
         self.actionGramatical = QtWidgets.QAction(MainWindow)
         self.actionGramatical.setObjectName("actionGramatical")
+        self.actionGramatical_desc = QtWidgets.QAction(MainWindow)
+        self.actionGramatical_desc.setObjectName("actionGramatical_desc")
+
 
         self.menuReportes.addAction(self.actionReporteAST)
+        self.menuReportes.addAction(self.actionReporteAST_desc)
         self.menuReportes.addAction(self.actionLexico)
         self.menuReportes.addAction(self.actionSintactico)
         self.menuReportes.addAction(self.actionGramatical)
+        self.menuReportes.addAction(self.actionGramatical_desc)
+        
         self.menuArchivo.addAction(self.actionNuevo)
         self.menuArchivo.addAction(self.actionAbrir)
         self.menuArchivo.addAction(self.actionGuardar)
@@ -262,6 +272,11 @@ class Ui_MainWindow(QMainWindow):
         self.actionSintactico.triggered.connect(lambda :self.action_abrir_reporte_Sintactico())
         self.actionLexico.triggered.connect(lambda :self.action_abrir_reporte_lexico())
         self.actionNuevo.triggered.connect(lambda :self.nuevo_archivo())
+        self.actionReporteAST_desc.triggered.connect(lambda :self.action_abrir_imgen_ast_desc())
+        self.actionGramatical_desc.triggered.connect(lambda :self.action_abrir_reporte_gramatical_desc())
+        self.actionEjecutar_Descedente.triggered.connect(lambda :self.ejecutar_desc())
+        self.actionAyuda.triggered.connect(lambda :self.action_abrir_manual_usuario())
+        self.actionAcerca_De.triggered.connect(lambda :self.showmessagebox())
 
 
         self.__myFont = QFont()
@@ -348,10 +363,12 @@ class Ui_MainWindow(QMainWindow):
         self.actionAcerca_De.setText(_translate("MainWindow", "Acerca De.."))
         self.actionEjecutar_Descedente.setText(_translate("MainWindow", "Ejecutar Descedente"))
 
-        self.actionReporteAST.setText(_translate("MainWindow", "ReporteAST"))
+        self.actionReporteAST.setText(_translate("MainWindow", "Reporte AST ASC"))
+        self.actionReporteAST_desc.setText(_translate("MainWindows","Reporte AST DESC"))
         self.actionLexico.setText(_translate("MainWindow", "Lexico"))
         self.actionSintactico.setText(_translate("MainWindow", "Sintactico"))
         self.actionGramatical.setText(_translate("MainWindow", "Gramatical"))
+        self.actionGramatical_desc.setText(_translate("MainWindow", "Gramatical DESC"))
 
     def nuevo_archivo(self):
         if(self.filename!=''):
@@ -387,6 +404,25 @@ class Ui_MainWindow(QMainWindow):
         #self.plainTextEdit.setPlainText(acciones_parser.imprimir)
         #self.plainTextEdit.appendPlainText("PRUEBA APE")
         self.plainTextEdit_2.setHtml (acciones_parser.imprimir_tabla_simbolos())
+    
+    def ejecutar_desc(self):
+        
+        #f = open("./prueba.txt", "r")
+        #input = f.read()
+        input = self.__editor.text()
+        Raiz = gr_desc.parse(input)
+        #print(Raiz.produccion)
+
+        #acciones_parser=acciones(Raiz)
+        #acciones_parser.ejecutar(self.plainTextEdit)
+        gr_desc.reporte_de_errores_sintacticos()
+        gr_desc.reportegramatica()
+        gr_desc.reporte_de_errores_lexicos()
+        #self.plainTextEdit.appendPlainText(acciones_parser.error)
+        #print(acciones_parser.imprimir)
+        #self.plainTextEdit.setPlainText(acciones_parser.imprimir)
+        #self.plainTextEdit.appendPlainText("PRUEBA APE")
+        #self.plainTextEdit_2.setHtml (acciones_parser.imprimir_tabla_simbolos())
         
     def open(self):
         self.filename = QFileDialog.getOpenFileName(self, 'Open File', ".", "(*.*)")
@@ -419,6 +455,18 @@ class Ui_MainWindow(QMainWindow):
     def action_abrir_reporte_Gramatical(self):
         wb.open_new(r'ReporteGramatical.pdf')
 
+    def action_abrir_reporte_gramatical_desc(self):
+        wb.open_new(r'ReporteGramatical_desc.pdf')
+    
+    def action_abrir_imgen_ast_desc(self):       
+        wb.open_new(r'AST_Desc.dot.png')
+    def action_abrir_manual_usuario(self):       
+        wb.open_new(r'MANUAL DE USUARIO.pdf')
+
+    def showmessagebox(self):
+        wb.open_new(r'acercade.pdf')
+
+            
       
             
 if __name__ == "__main__":

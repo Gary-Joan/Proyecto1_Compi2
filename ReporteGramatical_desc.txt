@@ -1,0 +1,242 @@
+inicio -> instruccion
+instruccion ->MAIN DOSPUNTOS
+listainstrucciones_prima -> <vacio>
+lista -> inst_if
+inst_if -> IFPARIZQ expresion PARDERGOTO ID PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp op valorp
+valorp -> ENTERO
+op -> MENORQUE
+variable_prima -> <vacio>
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp op valorp
+valorp -> ENTERO
+op -> SUMA
+variable_prima -> <vacio>
+variable_prima -> <vacio>
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> CADENADOBLE
+lista -> inst_imprimir
+inst_imprimir -> IMPRIMIR PARIZQ expresion PARDER PUNTOCOMA
+expresion -> variable
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+variable_prima -> <vacio>
+lista -> etiqueta
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> ENTERO
+variable_prima -> <vacio>
+lista -> etiqueta
+lista -> inst_goto
+inst_goto -> GOTO ID PUNTOCOMA
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp op valorp
+valorp -> ENTERO
+op -> SUMA
+variable_prima -> <vacio>
+variable_prima -> <vacio>
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> variable
+variable_prima -> <vacio>
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+variable_prima -> <vacio>
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> variable
+variable_prima -> <vacio>
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+variable_prima -> <vacio>
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> variable
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+variable_prima -> <vacio>
+variable_prima -> <vacio>
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> variable
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+variable_prima -> <vacio>
+variable_prima -> <vacio>
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp op valorp
+valorp -> ENTERO
+op -> SUMA
+variable_prima -> <vacio>
+variable_prima -> <vacio>
+lista -> etiqueta
+lista -> inst_goto
+inst_goto -> GOTO ID PUNTOCOMA
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp op valorp
+valorp -> ENTERO
+op -> SUMA
+variable_prima -> <vacio>
+variable_prima -> <vacio>
+lista -> inst_if
+inst_if -> IFPARIZQ expresion PARDERGOTO ID PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp op valorp
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+variable_prima -> <vacio>
+op -> MENORQUE
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+variable_prima -> <vacio>
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp op valorp
+valorp -> ENTERO
+op -> SUMA
+variable_prima -> <vacio>
+variable_prima -> <vacio>
+lista -> inst_if
+inst_if -> IFPARIZQ expresion PARDERGOTO ID PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp op valorp
+valorp -> ENTERO
+op -> MAYORQUE
+variable_prima -> <vacio>
+lista -> etiqueta
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> ENTERO
+variable_prima -> <vacio>
+lista -> inst_if
+inst_if -> IFPARIZQ expresion PARDERGOTO ID PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp op valorp
+valorp -> ENTERO
+op -> MAYORQUE
+variable_prima -> <vacio>
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp op valorp
+valorp -> ENTERO
+op -> SUMA
+variable_prima -> <vacio>
+variable_prima -> <vacio>
+lista -> etiqueta
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> ENTERO
+variable_prima -> <vacio>
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> ENTERO
+variable_prima -> <vacio>
+lista -> etiqueta
+lista -> inst_goto
+inst_goto -> GOTO ID PUNTOCOMA
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> ENTERO
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> ENTERO
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> ENTERO
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> ENTERO
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> ENTERO
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> ENTERO
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> ENTERO
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> ENTERO
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> ENTERO
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> ENTERO
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> ENTERO
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> ENTERO
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> ENTERO
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> ENTERO
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> ENTERO
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> ENTERO
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> ENTERO
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> ENTERO
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> expresion_num
+expresion_num -> valorp
+valorp -> ENTERO
+variable_prima -> <vacio>
+var_arreglo -> LLAVEIZQ valorp LLAVEDER
+valorp -> ENTERO
+lista -> inst_asignacion
+inst_asignacion -> variable IGUAL expresion PUNTOCOMA
+expresion -> inst_array
+variable_prima -> <vacio>

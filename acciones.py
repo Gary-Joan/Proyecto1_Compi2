@@ -1,13 +1,12 @@
 from tablasimbolo import Simbolo, tabladesimbolos
 
-import tkinter as tk
 from tkinter import Tk, simpledialog
 import NodoArbol
 from ply.lex import LexToken, Lexer
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from tkinter.ttk import Button
 from PyQt5.QtGui import QTextCursor
+import easygui
 
 
 
@@ -198,21 +197,23 @@ class acciones ():
  #-----------------------------------------------------------------------------SENTENCIA UNSET------------------------------------
     def accion_unset(self,Raiz):
         result=None
-        if(Raiz!=None):
-            if(Raiz.produccion=='unset'):
-                variable_borrar=self.tabla_simbolos.get_symbol(Raiz.hijos[0])
-                if(variable_borrar!=None):
-                    self.tabla_simbolos.delete_symbol(variable_borrar)
+        try:
+            if(Raiz!=None):
+                if(Raiz.produccion=='unset'):
+                    variable_borrar=self.tabla_simbolos.get_symbol(Raiz.hijos[0])
+                    if(variable_borrar!=None):
+                        self.tabla_simbolos.delete_symbol(variable_borrar)
+                    else:
+                        self.error+="Error la variable"+str(Raiz.hijos[0].id)+"no se puede eliminar porque no exite"
                 else:
-                    self.error+="Error la variable"+str(Raiz.hijos[0].id)+"no se puede eliminar porque no exite"
+                    self.error+="Error en Unset\n"
+
+
             else:
-                self.error+="Error en Unset"
-
-
-        else:
-            self.error+="Error en Unset"
-        return result
-
+                self.error+="Error en Unset\n"
+            return result
+        except:
+                self.error+="Error Unset\n"
 
  #-----------------------------------------------------------------------------SENTENCIA EXIT------------------------------------
     def accion_exit(self,Raiz):
@@ -287,10 +288,21 @@ class acciones ():
         result=None
         consola1=consola
         if(Raiz.produccion=='read'):
-          S=0
+            myvar = easygui.enterbox("Ingrese Valor")
+            if myvar.isdigit():
+                aux=int(myvar)
+                result=Simbolo('sin','entero',str(aux),'var','0','0')
+                #consola1.appendPlainText(str(aux))
+                return result
+            else:
+                aux=str(myvar)
+                result=Simbolo('sin','cadena',str(aux),'var','0','0')
+                #consola1.appendPlainText(aux)
+                return result
                  
         else:
             self.error+= 'Error en la lectura\n'
+            result=None
 
         return result  
   
