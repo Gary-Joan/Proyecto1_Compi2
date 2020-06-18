@@ -419,6 +419,15 @@ def p_inst_array(t):
     'expresion : inst_array'
     constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0]= t[1] }")
     t[0] = t[1]
+def p_exp_puntero(t):
+    'expresion : exp_puntero'
+    constantes.reporte_gramatical.append(str(t.slice[0].type)+" -> "+str(t.slice[1].type)+"\n{t[0]= t[1] }")
+    
+    t[0] = t[1]
+def p_puntero(t):
+    'exp_puntero : PUNTERO VAR'
+    t[0] = crear_hoja('puntero','')
+    t[0]=agregar_hijo(t[0],t[1])
 
 def p_expresion_numerica_binaria(t):
     'expresion_num : valorp op valorp'
